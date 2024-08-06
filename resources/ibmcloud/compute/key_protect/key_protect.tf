@@ -102,6 +102,6 @@ resource "ibm_kms_kmip_adapter" "myadapter" {
 resource "ibm_kms_kmip_client_cert" "mycert" {
   instance_id = ibm_resource_instance.kms_instance.guid
   adapter_id = ibm_kms_kmip_adapter.myadapter.adapter_id
-  certificate = file("${path.module}/SSL/KPClient.cert")
+  certificate = tls_self_signed_cert.example.cert_pem
   name = format("%s-keyprotect-adapter-cert", var.resource_prefix)
 }
