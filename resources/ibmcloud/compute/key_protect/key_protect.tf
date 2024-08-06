@@ -19,7 +19,7 @@ variable "resource_tags" {}
 resource "null_resource" "openssl_commands" {
   provisioner "local-exec" {
     command = <<EOT
-      openssl s_client -showcerts -connect ${region}.kms.cloud.ibm.com:5696 < /dev/null >> KeyProtect_Server.cert
+      openssl s_client -showcerts -connect "${var.region}".kms.cloud.ibm.com:5696 < /dev/null >> KeyProtect_Server.cert
       END_DATE=$(openssl x509 -enddate -noout -in KeyProtect_Server.cert | awk -F'=' '{print $2}')
       CURRENT_DATE=$(date -u +"%b %d %T %Y GMT")
       HOURS=$(( ( $(date -d "$END_DATE" +%s) - $(date -d "$CURRENT_DATE" +%s) ) / 3600 ))
