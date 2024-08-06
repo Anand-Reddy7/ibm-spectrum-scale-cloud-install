@@ -15,6 +15,27 @@ variable "region" {}
 variable "resource_group_id" {}
 variable "resource_tags" {}
 
+# Get the Key Protect Server certificate
+resource "null_resource" "openssl_commands" {
+  provisioner "local-exec" {
+    command = <<EOT
+      openssl s_client -showcerts -connect ${region}.kms.cloud.ibm.com:5696 < /dev/null >> KeyProtect_Server.cert
+      END_DATE=$(openssl x509 -enddate -noout -in KeyProtect_Server.cert | awk -F'=' '{print $2}')
+      CURRENT_DATE=$(date -u +"%b %d %T %Y GMT")
+      HOURS=$(( ( $(date -d "$END_DATE" +%s) - $(date -d "$CURRENT_DATE" +%s) ) / 3600 ))
+      echo $HOURS > hours.txt
+      awk '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/' KeyProtect_Server.cert >> KeyProtect_Server_CA.cert
+      awk '/-----BEGIN CERTIFICATE-----/{x="KeyProtect_Server.chain"i".cert";i++} {print > x}' KeyProtect_Server_CA.cert
+      mv KeyProtect_Server.chain.cert KeyProtect_Server.chain0.cert
+    EOT
+  }
+}
+
+# Read the HOURS value from the file
+data "local_file" "hours" {
+  filename = "${path.module}/hours.txt"
+}
+
 ## Create a Self Signed Certificate
 resource "tls_private_key" "example" {
   algorithm = "RSA"
@@ -52,7 +73,7 @@ resource "tls_self_signed_cert" "example" {
     locality              = "Armonk"
   }
 
-  validity_period_hours = 8760
+  validity_period_hours = tonumber(trimspace(data.local_file.hours.content))
 }
 
 # Save the private key to a file
