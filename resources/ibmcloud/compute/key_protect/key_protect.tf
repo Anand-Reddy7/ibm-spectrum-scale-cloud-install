@@ -15,28 +15,42 @@ variable "region" {}
 variable "resource_group_id" {}
 variable "resource_tags" {}
 
-# Get the Key Protect Server certificate
 resource "null_resource" "openssl_commands" {
   provisioner "local-exec" {
     command = <<EOT
-      openssl s_client -showcerts -connect "${var.region}".kms.cloud.ibm.com:5696 < /dev/null >> KeyProtect_Server.cert
-      END_DATE=$(openssl x509 -enddate -noout -in KeyProtect_Server.cert | awk -F'=' '{print $2}')
-      CURRENT_DATE=$(date -u +"%b %d %T %Y GMT")
+      # Create SSL directory if it doesn't exist
+      mkdir -p "${path.module}/SSL"
+      
+      # Fetch the server certificate and save it to a file
+      openssl s_client -showcerts -connect "${var.region}.kms.cloud.ibm.com:5696" < /dev/null > "${path.module}/SSL/KeyProtect_Server.cert"
+      
+      # Extract the end date of the certificate
+      END_DATE=$(openssl x509 -enddate -noout -in "${path.module}/SSL/KeyProtect_Server.cert" | awk -F'=' '{print $2}')
+      
+      # Get the current date in GMT
+      CURRENT_DATE=$(date -u +"%b %d %T %Y %Z")
+      
+      # Calculate the number of hours between END_DATE and CURRENT_DATE
       HOURS=$(( ( $(date -d "$END_DATE" +%s) - $(date -d "$CURRENT_DATE" +%s) ) / 3600 ))
-      echo $HOURS > hours.txt
-      awk '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/' KeyProtect_Server.cert >> KeyProtect_Server_CA.cert
-      awk '/-----BEGIN CERTIFICATE-----/{x="KeyProtect_Server.chain"i".cert";i++} {print > x}' KeyProtect_Server_CA.cert
-      mv KeyProtect_Server.chain.cert KeyProtect_Server.chain0.cert
+
+      echo $HOURS > "${path.module}/SSL/hours.txt"
+      
+      # Extract the certificate part from the file and save it
+      awk '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/' "${path.module}/SSL/KeyProtect_Server.cert" > "${path.module}/SSL/KeyProtect_Server_CA.cert"
+      awk '/-----BEGIN CERTIFICATE-----/{x="${path.module}/SSL/KeyProtect_Server.chain"i".cert";i++} {print > x}' "${path.module}/SSL/KeyProtect_Server_CA.cert"
+      
+      # Rename the file
+      mv "${path.module}/SSL/KeyProtect_Server.chain.cert" "${path.module}/SSL/KeyProtect_Server.chain0.cert"
     EOT
   }
 }
 
-# Read the HOURS value from the file
+# External data source to read the hours.txt file
 data "local_file" "hours" {
-  filename = "${path.module}/hours.txt"
+  filename = "${path.module}/SSL/hours.txt"
+  depends_on = [ null_resource.openssl_commands ]
 }
 
-## Create a Self Signed Certificate
 resource "tls_private_key" "example" {
   algorithm = "RSA"
   rsa_bits  = 2048
@@ -74,6 +88,7 @@ resource "tls_self_signed_cert" "example" {
   }
 
   validity_period_hours = tonumber(trimspace(data.local_file.hours.content))
+  depends_on = [ data.local_file.hours ]
 }
 
 # Save the private key to a file
