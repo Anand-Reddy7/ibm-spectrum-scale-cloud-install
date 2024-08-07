@@ -581,17 +581,17 @@ module "storage_cluster_tie_breaker_instance" {
 }
 
 data "ibm_is_ssh_key" "gklm_ssh_key" {
-  count = var.scale_encryption_enabled == true && var.scale_encryption_type == "gklm" ? length(var.gklm_instance_key_pair) : 0
+  count = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? length(var.gklm_instance_key_pair) : 0
   name  = var.gklm_instance_key_pair[count.index]
 }
 
 data "ibm_is_image" "gklm_instance_image" {
   name  = var.gklm_vsi_osimage_name
-  count = var.scale_encryption_enabled == true && var.scale_encryption_type == "gklm" && var.gklm_vsi_osimage_id == null ? 1 : 0
+  count = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" && var.gklm_vsi_osimage_id == null ? 1 : 0
 }
 
 module "gklm_instance" {
-  count                = var.scale_encryption_enabled == true && var.scale_encryption_type == "gklm" ? 1 : 0
+  count                = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? 1 : 0
   source               = "../../../resources/ibmcloud/compute/gklm_vsi"
   total_vsis           = var.total_gklm_instances
   vsi_name_prefix      = format("%s-gklm", var.resource_prefix)
@@ -613,7 +613,7 @@ module "gklm_instance" {
 }
 
 module "key_protect_instance" {
-  count                = var.scale_encryption_enabled == true && var.scale_encryption_type == "key_protect" ? 1 : 0
+  count                = var.scale_encryption_enabled && var.scale_encryption_type == "key_protect" ? 1 : 0
   source               = "../../../resources/ibmcloud/compute/key_protect"
   resource_prefix      = var.resource_prefix
   region               = var.vpc_region
@@ -948,8 +948,8 @@ module "storage_cluster_configuration" {
   enable_mrot_conf                    = local.enable_mrot_conf ? "True" : "False"
   enable_ces                          = local.scale_ces_enabled == true ? "True" : "False"
   scale_encryption_enabled            = var.scale_encryption_enabled
-  scale_encryption_type               = var.scale_encryption_type 
-  scale_encryption_admin_password     = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? var.scale_encryption_admin_password : null
+  scale_encryption_type               = var.scale_encryption_type
+  scale_encryption_admin_password     = var.scale_encryption_enabled ? var.scale_encryption_admin_password : null
   scale_encryption_servers            = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? jsonencode(one(module.gklm_instance[*].gklm_ip_addresses)) : null
   enable_ldap                         = var.enable_ldap
   ldap_basedns                        = var.ldap_basedns
@@ -1059,7 +1059,7 @@ module "invoke_storage_network_playbook" {
 
 module "encryption_configuration" {
   source                                  = "../../../resources/common/encryption_configuration"
-  turn_on                                 = var.scale_encryption_enabled == true && var.scale_encryption_type == "gklm" ? true : false
+  turn_on                                 = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? true : false
   clone_path                              = var.scale_ansible_repo_clone_path
   clone_complete                          = module.prepare_ansible_configuration.clone_complete
   create_scale_cluster                    = var.create_scale_cluster
