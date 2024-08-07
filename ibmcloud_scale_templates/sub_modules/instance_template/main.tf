@@ -892,7 +892,7 @@ module "compute_cluster_configuration" {
   spectrumscale_rpms_path         = var.spectrumscale_rpms_path
   enable_mrot_conf                = local.enable_mrot_conf ? "True" : "False"
   enable_ces                      = "False"
-  scale_encryption_enabled        = var.scale_encryption_enabled ? true : false
+  scale_encryption_enabled        = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? true : false
   scale_encryption_type           = var.scale_encryption_type
   scale_encryption_admin_password = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? var.scale_encryption_admin_password : null
   scale_encryption_servers        = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? jsonencode(one(module.gklm_instance[*].gklm_ip_addresses)) : null
@@ -947,8 +947,8 @@ module "storage_cluster_configuration" {
   spectrumscale_rpms_path             = var.spectrumscale_rpms_path
   enable_mrot_conf                    = local.enable_mrot_conf ? "True" : "False"
   enable_ces                          = local.scale_ces_enabled == true ? "True" : "False"
-  scale_encryption_enabled            = var.scale_encryption_enabled ? true : false
-  scale_encryption_type               = var.scale_encryption_type
+  scale_encryption_enabled            = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? true : false
+  scale_encryption_type               = var.scale_encryption_type 
   scale_encryption_admin_password     = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? var.scale_encryption_admin_password : null
   scale_encryption_servers            = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? jsonencode(one(module.gklm_instance[*].gklm_ip_addresses)) : null
   enable_ldap                         = var.enable_ldap
@@ -979,7 +979,7 @@ module "combined_cluster_configuration" {
   scale_version                   = local.scale_version
   spectrumscale_rpms_path         = var.spectrumscale_rpms_path
   enable_mrot_conf                = false
-  scale_encryption_enabled        = var.scale_encryption_enabled ? true : false
+  scale_encryption_enabled        = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? true : false
   scale_encryption_type           = var.scale_encryption_type
   scale_encryption_admin_password = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? var.scale_encryption_admin_password : null
   scale_encryption_servers        = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? jsonencode(one(module.gklm_instance[*].gklm_ip_addresses)) : null
