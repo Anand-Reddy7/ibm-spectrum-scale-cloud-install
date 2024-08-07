@@ -581,17 +581,17 @@ module "storage_cluster_tie_breaker_instance" {
 }
 
 data "ibm_is_ssh_key" "gklm_ssh_key" {
-  count = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? length(var.gklm_instance_key_pair) : 0
+  count = var.scale_encryption_enabled == true && var.scale_encryption_type == "gklm" ? length(var.gklm_instance_key_pair) : 0
   name  = var.gklm_instance_key_pair[count.index]
 }
 
 data "ibm_is_image" "gklm_instance_image" {
   name  = var.gklm_vsi_osimage_name
-  count = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" && var.gklm_vsi_osimage_id == null ? 1 : 0
+  count = var.scale_encryption_enabled == true && var.scale_encryption_type == "gklm" && var.gklm_vsi_osimage_id == null ? 1 : 0
 }
 
 module "gklm_instance" {
-  count                = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? 1 : 0
+  count                = var.scale_encryption_enabled == true && var.scale_encryption_type == "gklm" ? 1 : 0
   source               = "../../../resources/ibmcloud/compute/gklm_vsi"
   total_vsis           = var.total_gklm_instances
   vsi_name_prefix      = format("%s-gklm", var.resource_prefix)
@@ -605,7 +605,7 @@ module "gklm_instance" {
   dns_zone_id          = var.gklm_instance_dns_zone_id
   vsi_subnet_id        = var.vpc_compute_cluster_private_subnets
   vsi_security_group   = [module.gklm_instance_security_group.sec_group_id]
-  vsi_user_public_key  = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? data.ibm_is_ssh_key.gklm_ssh_key[*].id : []
+  vsi_user_public_key  = var.scale_encryption_enabled == true && var.scale_encryption_type == "gklm" ? data.ibm_is_ssh_key.gklm_ssh_key[*].id : []
   vsi_meta_private_key = var.create_separate_namespaces == true ? module.generate_gklm_instance_keys.private_key_content : 0
   vsi_meta_public_key  = var.create_separate_namespaces == true ? module.generate_gklm_instance_keys.public_key_content : 0
   resource_tags        = var.scale_cluster_resource_tags
@@ -613,7 +613,7 @@ module "gklm_instance" {
 }
 
 module "key_protect_instance" {
-  count                = var.scale_encryption_enabled && var.scale_encryption_type == "key_protect" ? 1 : 0
+  count                = var.scale_encryption_enabled == true && var.scale_encryption_type == "key_protect" ? 1 : 0
   source               = "../../../resources/ibmcloud/compute/key_protect"
   resource_prefix      = var.resource_prefix
   region               = var.vpc_region
@@ -1059,7 +1059,7 @@ module "invoke_storage_network_playbook" {
 
 module "encryption_configuration" {
   source                                  = "../../../resources/common/encryption_configuration"
-  turn_on                                 = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? true : false
+  turn_on                                 = var.scale_encryption_enabled == true && var.scale_encryption_type == "gklm" ? true : false
   clone_path                              = var.scale_ansible_repo_clone_path
   clone_complete                          = module.prepare_ansible_configuration.clone_complete
   create_scale_cluster                    = var.create_scale_cluster
