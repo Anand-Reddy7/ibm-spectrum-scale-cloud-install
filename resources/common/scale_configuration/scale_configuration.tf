@@ -28,6 +28,7 @@ variable "enable_ldap" {}
 variable "ldap_basedns" {}
 variable "ldap_server" {}
 variable "ldap_admin_password" {}
+variable "scale_encryption_type" {}
 
 locals {
   scripts_path             = replace(path.module, "scale_configuration", "scripts")
