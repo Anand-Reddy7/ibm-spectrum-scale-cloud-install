@@ -893,9 +893,8 @@ module "compute_cluster_configuration" {
   enable_mrot_conf                = local.enable_mrot_conf ? "True" : "False"
   enable_ces                      = "False"
   scale_encryption_enabled        = var.scale_encryption_enabled
-  scale_encryption_type           = var.scale_encryption_type
-  scale_encryption_admin_password = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? var.scale_encryption_admin_password : null
-  scale_encryption_servers        = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? jsonencode(one(module.gklm_instance[*].gklm_ip_addresses)) : null
+  scale_encryption_admin_password = var.scale_encryption_enabled ? var.scale_encryption_admin_password : null
+  scale_encryption_servers        = var.scale_encryption_enabled ? jsonencode(one(module.gklm_instance[*].gklm_ip_addresses)) : null
   enable_ldap                     = var.enable_ldap
   ldap_basedns                    = var.ldap_basedns
   ldap_server                     = local.ldap_server
@@ -980,9 +979,8 @@ module "combined_cluster_configuration" {
   spectrumscale_rpms_path         = var.spectrumscale_rpms_path
   enable_mrot_conf                = false
   scale_encryption_enabled        = var.scale_encryption_enabled
-  scale_encryption_type           = var.scale_encryption_type
-  scale_encryption_admin_password = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? var.scale_encryption_admin_password : null
-  scale_encryption_servers        = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? jsonencode(one(module.gklm_instance[*].gklm_ip_addresses)) : null
+  scale_encryption_admin_password = var.scale_encryption_enabled ? var.scale_encryption_admin_password : null
+  scale_encryption_servers        = var.scale_encryption_enabled ? jsonencode(one(module.gklm_instance[*].gklm_ip_addresses)) : null
   enable_ldap                     = var.enable_ldap
   ldap_basedns                    = var.ldap_basedns
   ldap_server                     = local.ldap_server

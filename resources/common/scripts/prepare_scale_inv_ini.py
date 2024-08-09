@@ -312,7 +312,7 @@ def prepare_ansible_playbook_encryption_cluster(hosts_config):
 """
     return content.format(hosts_config=hosts_config)
 
-def prepare_ansible_playbook_encryption_keyprotect():
+def prepare_ansible_playbook_encryption_keyprotect_prepare():
     # Write to playbook
     content = """---
 # Encryption setup for the key Protect
@@ -329,7 +329,7 @@ def prepare_ansible_playbook_encryption_keyprotect():
 
 def initialize_cluster_details(scale_version, cluster_name, cluster_type, username, password, scale_profile_path, scale_replica_config, enable_mrot,
                                enable_ces, storage_subnet_cidr, compute_subnet_cidr, protocol_gateway_ip, scale_remote_cluster_clustername,
-                               scale_encryption_servers, scale_encryption_admin_password, enable_ldap, ldap_basedns, ldap_server, ldap_admin_password):
+                               scale_encryption_type, scale_encryption_servers, scale_encryption_admin_password, enable_ldap, ldap_basedns, ldap_server, ldap_admin_password):
     """ Initialize cluster details.
     :args: scale_version (string), cluster_name (string),
            username (string), password (string), scale_profile_path (string),
@@ -356,6 +356,7 @@ def initialize_cluster_details(scale_version, cluster_name, cluster_type, userna
     cluster_details['protocol_gateway_ip'] = protocol_gateway_ip
     cluster_details['scale_remote_cluster_clustername'] = scale_remote_cluster_clustername
     # Preparing list for Encryption Servers
+    cluster_details['scale_encryption_type'] = scale_encryption_type
     if scale_encryption_servers:
         cleaned_ip_string = scale_encryption_servers.strip(
             '[]').replace('\\"', '').split(',')
@@ -1032,7 +1033,7 @@ if __name__ == "__main__":
 
     # Step-4.1: Create Key Protect Encryption playbook
     if ARGUMENTS.scale_encryption_enabled == "true" and ARGUMENTS.scale_encryption_type == "key_protect":
-        encryption_playbook_content = prepare_ansible_playbook_encryption_keyprotect()
+        encryption_playbook_content = prepare_ansible_playbook_encryption_keyprotect_prepare()
         write_to_file("%s/%s/encryption_keyprotect_playbook.yaml" % (ARGUMENTS.install_infra_path,
                                                                "ibm-spectrum-scale-install-infra"), encryption_playbook_content)
 
@@ -1079,6 +1080,7 @@ if __name__ == "__main__":
                                                     TF['compute_subnet_cidr'],
                                                     TF['protocol_gateway_ip'],
                                                     TF['scale_remote_cluster_clustername'],
+                                                    ARGUMENTS.scale_encryption_type,
                                                     ARGUMENTS.scale_encryption_servers,
                                                     ARGUMENTS.scale_encryption_admin_password,
                                                     ARGUMENTS.enable_ldap,
