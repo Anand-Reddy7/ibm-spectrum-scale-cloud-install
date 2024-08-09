@@ -949,7 +949,7 @@ module "storage_cluster_configuration" {
   enable_ces                          = local.scale_ces_enabled == true ? "True" : "False"
   scale_encryption_enabled            = var.scale_encryption_enabled
   scale_encryption_type               = var.scale_encryption_type
-  scale_encryption_admin_password     = var.scale_encryption_enabled ? var.scale_encryption_admin_password : null
+  scale_encryption_admin_password     = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? var.scale_encryption_admin_password : null
   scale_encryption_servers            = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? jsonencode(one(module.gklm_instance[*].gklm_ip_addresses)) : null
   enable_ldap                         = var.enable_ldap
   ldap_basedns                        = var.ldap_basedns
