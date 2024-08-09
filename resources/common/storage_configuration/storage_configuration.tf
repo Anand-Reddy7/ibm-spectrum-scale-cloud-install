@@ -64,7 +64,7 @@ locals {
   storage_inventory_path    = format("%s/%s/storage_inventory.ini", var.clone_path, "ibm-spectrum-scale-install-infra")
   storage_playbook_path     = format("%s/%s/storage_cloud_playbook.yaml", var.clone_path, "ibm-spectrum-scale-install-infra")
   scale_encryption_servers  = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? jsonencode(var.scale_encryption_servers) : jsonencode("None")
-  scale_encryption_admin_password = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? var.scale_encryption_admin_password : "None"
+  scale_encryption_admin_password = var.scale_encryption_enabled ? var.scale_encryption_admin_password : "None"
 }
 
 resource "local_file" "create_storage_tuning_parameters" {
