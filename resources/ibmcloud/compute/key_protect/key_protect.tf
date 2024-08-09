@@ -37,8 +37,8 @@ resource "null_resource" "openssl_commands" {
       echo $HOURS > "${var.key_protect_path}/cert_validation_hours.txt"
       
       # Extract the certificate part from the file and save it
-      awk '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/' "${path.module}/KeyProtect_Server.cert" > "${path.module}/KeyProtect_Server_CA.cert"
-      awk '/-----BEGIN CERTIFICATE-----/{x="${var.key_protect_path}/KeyProtect_Server.chain"i".cert";i++} {print > x}' "${path.module}/KeyProtect_Server_CA.cert"
+      awk '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/' "${var.key_protect_path}/KeyProtect_Server.cert" > "${var.key_protect_path}/KeyProtect_Server_CA.cert"
+      awk '/-----BEGIN CERTIFICATE-----/{x="${var.key_protect_path}/KeyProtect_Server.chain"i".cert";i++} {print > x}' "${var.key_protect_path}/KeyProtect_Server_CA.cert"
       
       # Rename the file
       mv "${var.key_protect_path}/KeyProtect_Server.chain.cert" "${var.key_protect_path}/KeyProtect_Server.chain0.cert"
