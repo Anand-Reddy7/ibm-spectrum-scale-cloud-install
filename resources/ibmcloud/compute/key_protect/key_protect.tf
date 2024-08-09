@@ -13,19 +13,20 @@ terraform {
 variable "resource_prefix" {}
 variable "region" {}
 variable "resource_group_id" {}
+variable "key_protect_path" {}
 variable "resource_tags" {}
 
 resource "null_resource" "openssl_commands" {
   provisioner "local-exec" {
     command = <<EOT
       # Create SSL directory if it doesn't exist
-      mkdir -p "${path.module}/SSL"
+      mkdir -p "${var.key_protect_path}"
       
       # Fetch the server certificate and save it to a file
-      openssl s_client -showcerts -connect "${var.region}.kms.cloud.ibm.com:5696" < /dev/null > "${path.module}/SSL/KeyProtect_Server.cert"
+      openssl s_client -showcerts -connect "${var.region}.kms.cloud.ibm.com:5696" < /dev/null > "${var.key_protect_path}/KeyProtect_Server.cert"
       
       # Extract the end date of the certificate
-      END_DATE=$(openssl x509 -enddate -noout -in "${path.module}/SSL/KeyProtect_Server.cert" | awk -F'=' '{print $2}')
+      END_DATE=$(openssl x509 -enddate -noout -in "${var.key_protect_path}/KeyProtect_Server.cert" | awk -F'=' '{print $2}')
       
       # Get the current date in GMT
       CURRENT_DATE=$(date -u +"%b %d %T %Y %Z")
@@ -33,21 +34,21 @@ resource "null_resource" "openssl_commands" {
       # Calculate the number of hours between END_DATE and CURRENT_DATE
       HOURS=$(( ( $(date -d "$END_DATE" +%s) - $(date -d "$CURRENT_DATE" +%s) ) / 3600 ))
 
-      echo $HOURS > "${path.module}/SSL/hours.txt"
+      echo $HOURS > "${var.key_protect_path}/cert_validation_hours.txt"
       
       # Extract the certificate part from the file and save it
-      awk '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/' "${path.module}/SSL/KeyProtect_Server.cert" > "${path.module}/SSL/KeyProtect_Server_CA.cert"
-      awk '/-----BEGIN CERTIFICATE-----/{x="${path.module}/SSL/KeyProtect_Server.chain"i".cert";i++} {print > x}' "${path.module}/SSL/KeyProtect_Server_CA.cert"
+      awk '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/' "${path.module}/KeyProtect_Server.cert" > "${path.module}/KeyProtect_Server_CA.cert"
+      awk '/-----BEGIN CERTIFICATE-----/{x="${var.key_protect_path}/KeyProtect_Server.chain"i".cert";i++} {print > x}' "${path.module}/KeyProtect_Server_CA.cert"
       
       # Rename the file
-      mv "${path.module}/SSL/KeyProtect_Server.chain.cert" "${path.module}/SSL/KeyProtect_Server.chain0.cert"
+      mv "${var.key_protect_path}/KeyProtect_Server.chain.cert" "${var.key_protect_path}/KeyProtect_Server.chain0.cert"
     EOT
   }
 }
 
 # External data source to read the hours.txt file
 data "local_file" "hours" {
-  filename = "${path.module}/SSL/hours.txt"
+  filename = "${var.key_protect_path}/cert_validation_hours.txt"
   depends_on = [ null_resource.openssl_commands ]
 }
 
@@ -94,19 +95,19 @@ resource "tls_self_signed_cert" "example" {
 # Save the private key to a file
 resource "local_file" "private_key" {
   content  = tls_private_key.example.private_key_pem
-  filename = "${path.module}/SSL/KPClient.key"
+  filename = "${var.key_protect_path}/KPClient.key"
 }
 
 # Save the certificate to a file
 resource "local_file" "certificate" {
   content  = tls_self_signed_cert.example.cert_pem
-  filename = "${path.module}/SSL/KPClient.cert"
+  filename = "${var.key_protect_path}/KPClient.cert"
 }
 
 # Save the CSR to a file
 resource "local_file" "csr" {
   content  = tls_cert_request.example.cert_request_pem
-  filename = "${path.module}/SSL/KPClient.csr"
+  filename = "${var.key_protect_path}/KPClient.csr"
 }
 
 ## Key Protect

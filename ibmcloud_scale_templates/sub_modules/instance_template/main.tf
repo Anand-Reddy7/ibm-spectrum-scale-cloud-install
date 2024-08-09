@@ -618,6 +618,7 @@ module "key_protect_instance" {
   resource_prefix      = var.resource_prefix
   region               = var.vpc_region
   resource_group_id    = var.resource_group_id
+  key_protect_path     = format("%s/key_protect", var.scale_ansible_repo_clone_path)
   resource_tags        = var.scale_cluster_resource_tags
   depends_on           = []
 }
