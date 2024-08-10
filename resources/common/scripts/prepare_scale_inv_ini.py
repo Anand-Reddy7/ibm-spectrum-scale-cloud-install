@@ -341,7 +341,7 @@ def prepare_ansible_playbook_encryption_keyprotect_configure(hosts_config):
     return content.format(hosts_config=hosts_config)
 
 
-def initialize_cluster_details(scale_version, cluster_name, cluster_type, resource_prefix, vpc_region, username, password, scale_profile_path, scale_replica_config, enable_mrot,
+def initialize_cluster_details(scale_version, cluster_name, cluster_type, kp_resource_prefix, vpc_region, username, password, scale_profile_path, scale_replica_config, enable_mrot,
                                enable_ces, storage_subnet_cidr, compute_subnet_cidr, protocol_gateway_ip, scale_remote_cluster_clustername,
                                scale_encryption_servers, scale_encryption_admin_password, scale_encryption_type, enable_ldap, ldap_basedns, ldap_server, ldap_admin_password):
     """ Initialize cluster details.
@@ -355,7 +355,7 @@ def initialize_cluster_details(scale_version, cluster_name, cluster_type, resour
     cluster_details['scale_cluster_clustername'] = cluster_name
     cluster_details['scale_cluster_type'] = cluster_type
     cluster_details['vpc_region'] = vpc_region
-    cluster_details['resource_prefix'] = resource_prefix
+    cluster_details['kp_resource_prefix'] = kp_resource_prefix
     cluster_details['scale_service_gui_start'] = "True"
     cluster_details['scale_gui_admin_user'] = username
     cluster_details['scale_gui_admin_password'] = password
@@ -710,7 +710,7 @@ if __name__ == "__main__":
                         help='Spectrum Scale install infra clone parent path')
     PARSER.add_argument('--instance_private_key', required=True,
                         help='Spectrum Scale instances SSH private key path')
-    PARSER.add_argument('--resource_prefix', help='Resource Prefix',
+    PARSER.add_argument('--kp_resource_prefix', help='Resource Prefix',
                         default="null")
     PARSER.add_argument('--vpc_region', help='VPC Region',
                         default="null")
@@ -1098,8 +1098,6 @@ if __name__ == "__main__":
                                                     gui_password,
                                                     profile_path,
                                                     replica_config,
-                                                    ARGUMENTS.resource_prefix,
-                                                    ARGUMENTS.vpc_region,
                                                     ARGUMENTS.enable_mrot_conf,
                                                     ARGUMENTS.enable_ces,
                                                     TF['storage_subnet_cidr'],
@@ -1109,6 +1107,8 @@ if __name__ == "__main__":
                                                     ARGUMENTS.scale_encryption_servers,
                                                     ARGUMENTS.scale_encryption_admin_password,
                                                     ARGUMENTS.scale_encryption_type,
+                                                    ARGUMENTS.kp_resource_prefix,
+                                                    ARGUMENTS.vpc_region,
                                                     ARGUMENTS.enable_ldap,
                                                     ARGUMENTS.ldap_basedns,
                                                     ARGUMENTS.ldap_server,
