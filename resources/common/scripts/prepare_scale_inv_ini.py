@@ -340,10 +340,9 @@ def prepare_ansible_playbook_encryption_keyprotect_configure(hosts_config):
 """
     return content.format(hosts_config=hosts_config)
 
-
-def initialize_cluster_details(scale_version, cluster_name, cluster_type, kp_resource_prefix, vpc_region, username, password, scale_profile_path, scale_replica_config, enable_mrot,
-                               enable_ces, storage_subnet_cidr, compute_subnet_cidr, protocol_gateway_ip, scale_remote_cluster_clustername,
-                               scale_encryption_servers, scale_encryption_admin_password, scale_encryption_type, enable_ldap, ldap_basedns, ldap_server, ldap_admin_password):
+def initialize_cluster_details(scale_version, cluster_name, cluster_type, username, password, scale_profile_path, scale_replica_config, enable_mrot,
+                               enable_ces, enable_afm, storage_subnet_cidr, compute_subnet_cidr, protocol_gateway_ip, scale_remote_cluster_clustername,
+                               scale_encryption_servers, scale_encryption_admin_password, scale_encryption_type, kp_resource_prefix, vpc_region, enable_ldap, ldap_basedns, ldap_server, ldap_admin_password, afm_cos_bucket_details, afm_config_details):
     """ Initialize cluster details.
     :args: scale_version (string), cluster_name (string),
            username (string), password (string), scale_profile_path (string),
@@ -354,8 +353,6 @@ def initialize_cluster_details(scale_version, cluster_name, cluster_type, kp_res
     cluster_details['scale_version'] = scale_version
     cluster_details['scale_cluster_clustername'] = cluster_name
     cluster_details['scale_cluster_type'] = cluster_type
-    cluster_details['vpc_region'] = vpc_region
-    cluster_details['kp_resource_prefix'] = kp_resource_prefix
     cluster_details['scale_service_gui_start'] = "True"
     cluster_details['scale_gui_admin_user'] = username
     cluster_details['scale_gui_admin_password'] = password
@@ -372,7 +369,6 @@ def initialize_cluster_details(scale_version, cluster_name, cluster_type, kp_res
     cluster_details['protocol_gateway_ip'] = protocol_gateway_ip
     cluster_details['scale_remote_cluster_clustername'] = scale_remote_cluster_clustername
     # Preparing list for Encryption Servers
-    cluster_details['scale_encryption_type'] = scale_encryption_type
     if scale_encryption_servers:
         cleaned_ip_string = scale_encryption_servers.strip(
             '[]').replace('\\"', '').split(',')
@@ -382,6 +378,9 @@ def initialize_cluster_details(scale_version, cluster_name, cluster_type, kp_res
     else:
         cluster_details['scale_encryption_servers'] = []
     cluster_details['scale_encryption_admin_password'] = scale_encryption_admin_password
+    cluster_details['scale_encryption_type'] = scale_encryption_type
+    cluster_details['kp_resource_prefix'] = kp_resource_prefix
+    cluster_details['vpc_region'] = vpc_region
     cluster_details['enable_ldap'] = enable_ldap
     cluster_details['ldap_basedns'] = ldap_basedns
     cluster_details['ldap_server'] = ldap_server
@@ -710,10 +709,6 @@ if __name__ == "__main__":
                         help='Spectrum Scale install infra clone parent path')
     PARSER.add_argument('--instance_private_key', required=True,
                         help='Spectrum Scale instances SSH private key path')
-    PARSER.add_argument('--kp_resource_prefix', help='Resource Prefix',
-                        default="null")
-    PARSER.add_argument('--vpc_region', help='VPC Region',
-                        default="null")
     PARSER.add_argument('--bastion_user',
                         help='Bastion OS Login username')
     PARSER.add_argument('--bastion_ip',
@@ -745,14 +740,18 @@ if __name__ == "__main__":
                         help='Configure CES on protocol nodes')
     PARSER.add_argument('--verbose', action='store_true',
                         help='print log messages')
-    PARSER.add_argument('--scale_encryption_enabled', help='Enabling encryption feature with GKLM',
-                        default=False)
     PARSER.add_argument('--scale_encryption_type', help='Encryption Type',
                         default="null")
     PARSER.add_argument('--scale_encryption_servers', help='List of key servers for encryption',
                         default=[])
     PARSER.add_argument('--scale_encryption_admin_password', help='Admin Password for the Key server',
                         default="null")
+    PARSER.add_argument('--kp_resource_prefix', help='Resource Prefix',
+                        default="null")
+    PARSER.add_argument('--vpc_region', help='VPC Region',
+                        default="null")
+    PARSER.add_argument('--scale_encryption_enabled', help='Enabling encryption feature with GKLM',
+                        default=False)
     PARSER.add_argument('--enable_ldap', help='Enabling the LDAP',
                         default=False)
     PARSER.add_argument('--ldap_basedns', help='Base domain of ldap',
