@@ -5,8 +5,6 @@
 variable "turn_on" {}
 variable "clone_complete" {}
 variable "write_inventory_complete" {}
-variable "kp_resource_prefix" {}
-variable "vpc_region" {}
 variable "create_scale_cluster" {}
 variable "clone_path" {}
 variable "inventory_path" {}
@@ -44,6 +42,8 @@ variable "scale_encryption_enabled" {}
 variable "scale_encryption_type" {}
 variable "scale_encryption_admin_password" {}
 variable "scale_encryption_servers" {}
+variable "kp_resource_prefix" {}
+variable "vpc_region" {}
 variable "disk_type" {}
 variable "default_metadata_replicas" {}
 variable "max_metadata_replicas" {}

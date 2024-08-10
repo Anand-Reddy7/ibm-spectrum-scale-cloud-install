@@ -341,8 +341,8 @@ def prepare_ansible_playbook_encryption_keyprotect_configure(hosts_config):
     return content.format(hosts_config=hosts_config)
 
 def initialize_cluster_details(scale_version, cluster_name, cluster_type, username, password, scale_profile_path, scale_replica_config, enable_mrot,
-                               enable_ces, enable_afm, storage_subnet_cidr, compute_subnet_cidr, protocol_gateway_ip, scale_remote_cluster_clustername,
-                               scale_encryption_servers, scale_encryption_admin_password, scale_encryption_type, kp_resource_prefix, vpc_region, enable_ldap, ldap_basedns, ldap_server, ldap_admin_password, afm_cos_bucket_details, afm_config_details):
+                               enable_ces, storage_subnet_cidr, compute_subnet_cidr, protocol_gateway_ip, scale_remote_cluster_clustername,
+                               scale_encryption_servers, scale_encryption_admin_password, scale_encryption_type, kp_resource_prefix, vpc_region, enable_ldap, ldap_basedns, ldap_server, ldap_admin_password):
     """ Initialize cluster details.
     :args: scale_version (string), cluster_name (string),
            username (string), password (string), scale_profile_path (string),
@@ -740,11 +740,11 @@ if __name__ == "__main__":
                         help='Configure CES on protocol nodes')
     PARSER.add_argument('--verbose', action='store_true',
                         help='print log messages')
-    PARSER.add_argument('--scale_encryption_type', help='Encryption Type',
-                        default="null")
     PARSER.add_argument('--scale_encryption_servers', help='List of key servers for encryption',
                         default=[])
     PARSER.add_argument('--scale_encryption_admin_password', help='Admin Password for the Key server',
+                        default="null")
+    PARSER.add_argument('--scale_encryption_type', help='Encryption Type',
                         default="null")
     PARSER.add_argument('--kp_resource_prefix', help='Resource Prefix',
                         default="null")
