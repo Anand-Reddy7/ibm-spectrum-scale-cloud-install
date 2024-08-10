@@ -341,9 +341,9 @@ def prepare_ansible_playbook_encryption_keyprotect_configure(hosts_config):
     return content.format(hosts_config=hosts_config)
 
 
-def initialize_cluster_details(scale_version, cluster_name, cluster_type, username, password, scale_profile_path, scale_replica_config, enable_mrot,
+def initialize_cluster_details(scale_version, cluster_name, cluster_type, resource_prefix, vpc_region, username, password, scale_profile_path, scale_replica_config, enable_mrot,
                                enable_ces, storage_subnet_cidr, compute_subnet_cidr, protocol_gateway_ip, scale_remote_cluster_clustername,
-                               scale_encryption_servers, scale_encryption_admin_password, scale_encryption_type, resource_prefix, enable_ldap, ldap_basedns, ldap_server, ldap_admin_password):
+                               scale_encryption_servers, scale_encryption_admin_password, scale_encryption_type, enable_ldap, ldap_basedns, ldap_server, ldap_admin_password):
     """ Initialize cluster details.
     :args: scale_version (string), cluster_name (string),
            username (string), password (string), scale_profile_path (string),
@@ -354,6 +354,8 @@ def initialize_cluster_details(scale_version, cluster_name, cluster_type, userna
     cluster_details['scale_version'] = scale_version
     cluster_details['scale_cluster_clustername'] = cluster_name
     cluster_details['scale_cluster_type'] = cluster_type
+    cluster_details['vpc_region'] = vpc_region
+    cluster_details['resource_prefix'] = resource_prefix
     cluster_details['scale_service_gui_start'] = "True"
     cluster_details['scale_gui_admin_user'] = username
     cluster_details['scale_gui_admin_password'] = password
@@ -371,7 +373,6 @@ def initialize_cluster_details(scale_version, cluster_name, cluster_type, userna
     cluster_details['scale_remote_cluster_clustername'] = scale_remote_cluster_clustername
     # Preparing list for Encryption Servers
     cluster_details['scale_encryption_type'] = scale_encryption_type
-    cluster_details['resource_prefix'] = resource_prefix
     if scale_encryption_servers:
         cleaned_ip_string = scale_encryption_servers.strip(
             '[]').replace('\\"', '').split(',')
@@ -709,6 +710,10 @@ if __name__ == "__main__":
                         help='Spectrum Scale install infra clone parent path')
     PARSER.add_argument('--instance_private_key', required=True,
                         help='Spectrum Scale instances SSH private key path')
+    PARSER.add_argument('--resource_prefix', help='Resource Prefix',
+                        default="null")
+    PARSER.add_argument('--vpc_region', help='VPC Region',
+                        default="null")
     PARSER.add_argument('--bastion_user',
                         help='Bastion OS Login username')
     PARSER.add_argument('--bastion_ip',
@@ -743,8 +748,6 @@ if __name__ == "__main__":
     PARSER.add_argument('--scale_encryption_enabled', help='Enabling encryption feature with GKLM',
                         default=False)
     PARSER.add_argument('--scale_encryption_type', help='Encryption Type',
-                        default="null")
-    PARSER.add_argument('--resource_prefix', help='Resource Prefix',
                         default="null")
     PARSER.add_argument('--scale_encryption_servers', help='List of key servers for encryption',
                         default=[])
@@ -1095,6 +1098,8 @@ if __name__ == "__main__":
                                                     gui_password,
                                                     profile_path,
                                                     replica_config,
+                                                    ARGUMENTS.resource_prefix,
+                                                    ARGUMENTS.vpc_region,
                                                     ARGUMENTS.enable_mrot_conf,
                                                     ARGUMENTS.enable_ces,
                                                     TF['storage_subnet_cidr'],
@@ -1104,7 +1109,6 @@ if __name__ == "__main__":
                                                     ARGUMENTS.scale_encryption_servers,
                                                     ARGUMENTS.scale_encryption_admin_password,
                                                     ARGUMENTS.scale_encryption_type,
-                                                    ARGUMENTS.resource_prefix,
                                                     ARGUMENTS.enable_ldap,
                                                     ARGUMENTS.ldap_basedns,
                                                     ARGUMENTS.ldap_server,

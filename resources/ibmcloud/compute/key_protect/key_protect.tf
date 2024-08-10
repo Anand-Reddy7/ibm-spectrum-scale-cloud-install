@@ -11,7 +11,7 @@ terraform {
 }
 
 variable "resource_prefix" {}
-variable "region" {}
+variable "vpc_region" {}
 variable "resource_group_id" {}
 variable "key_protect_path" {}
 variable "resource_tags" {}
@@ -23,7 +23,7 @@ resource "null_resource" "openssl_commands" {
       mkdir -p "${var.key_protect_path}"
       
       # Fetch the server certificate and save it to a file
-      openssl s_client -showcerts -connect "${var.region}.kms.cloud.ibm.com:5696" < /dev/null > "${var.key_protect_path}/KeyProtect_Server.cert"
+      openssl s_client -showcerts -connect "${var.vpc_region}.kms.cloud.ibm.com:5696" < /dev/null > "${var.key_protect_path}/Key_Protect_Server.cert"
       
       # Extract the end date of the certificate
       END_DATE=$(openssl x509 -enddate -noout -in "${var.key_protect_path}/KeyProtect_Server.cert" | awk -F'=' '{print $2}')
@@ -37,11 +37,11 @@ resource "null_resource" "openssl_commands" {
       echo $HOURS > "${var.key_protect_path}/cert_validation_hours.txt"
       
       # Extract the certificate part from the file and save it
-      awk '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/' "${var.key_protect_path}/KeyProtect_Server.cert" > "${var.key_protect_path}/KeyProtect_Server_CA.cert"
-      awk '/-----BEGIN CERTIFICATE-----/{x="${var.key_protect_path}/KeyProtect_Server.chain"i".cert";i++} {print > x}' "${var.key_protect_path}/KeyProtect_Server_CA.cert"
+      awk '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/' "${var.key_protect_path}/Key_Protect_Server.cert" > "${var.key_protect_path}/Key_Protect_Server_CA.cert"
+      awk '/-----BEGIN CERTIFICATE-----/{x="${var.key_protect_path}/Key_Protect_Server.chain"i".cert";i++} {print > x}' "${var.key_protect_path}/Key_Protect_Server_CA.cert"
       
       # Rename the file
-      mv "${var.key_protect_path}/KeyProtect_Server.chain.cert" "${var.key_protect_path}/KeyProtect_Server.chain0.cert"
+      mv "${var.key_protect_path}/Key_Protect_Server.chain.cert" "${var.key_protect_path}/Key_Protect_Server.chain0.cert"
     EOT
   }
 }
@@ -95,19 +95,19 @@ resource "tls_self_signed_cert" "example" {
 # Save the private key to a file
 resource "local_file" "private_key" {
   content  = tls_private_key.example.private_key_pem
-  filename = "${var.key_protect_path}/KPClient.key"
+  filename = "${var.key_protect_path}/${var.resource_prefix}.key"
 }
 
 # Save the certificate to a file
 resource "local_file" "certificate" {
   content  = tls_self_signed_cert.example.cert_pem
-  filename = "${var.key_protect_path}/KPClient.cert"
+  filename = "${var.key_protect_path}/${var.resource_prefix}.cert"
 }
 
 # Save the CSR to a file
 resource "local_file" "csr" {
   content  = tls_cert_request.example.cert_request_pem
-  filename = "${var.key_protect_path}/KPClient.csr"
+  filename = "${var.key_protect_path}/${var.resource_prefix}.csr"
 }
 
 ## Key Protect
@@ -115,7 +115,7 @@ resource "ibm_resource_instance" "kms_instance" {
   name              = format("%s-keyprotect", var.resource_prefix)
   service           = "kms"
   plan              = "tiered-pricing"
-  location          = var.region
+  location          = var.vpc_region
   resource_group_id = var.resource_group_id
   tags              = var.resource_tags
 }

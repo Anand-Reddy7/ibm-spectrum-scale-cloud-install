@@ -616,7 +616,7 @@ module "key_protect_instance" {
   count                = var.scale_encryption_enabled == true && var.scale_encryption_type == "key_protect" ? 1 : 0
   source               = "../../../resources/ibmcloud/compute/key_protect"
   resource_prefix      = var.resource_prefix
-  region               = var.vpc_region
+  vpc_region           = var.vpc_region
   resource_group_id    = var.resource_group_id
   key_protect_path     = format("%s/key_protect", var.scale_ansible_repo_clone_path)
   resource_tags        = var.scale_cluster_resource_tags
@@ -910,6 +910,7 @@ module "storage_cluster_configuration" {
   bastion_user                        = jsonencode(var.bastion_user)
   write_inventory_complete            = module.write_storage_cluster_inventory.write_inventory_complete
   resource_prefix                     = var.resource_prefix
+  vpc_region                          = var.vpc_region
   inventory_format                    = var.inventory_format
   create_scale_cluster                = var.create_scale_cluster
   clone_path                          = var.scale_ansible_repo_clone_path
