@@ -26,7 +26,7 @@ resource "null_resource" "openssl_commands" {
       openssl s_client -showcerts -connect "${var.vpc_region}.kms.cloud.ibm.com:5696" < /dev/null > "${var.key_protect_path}/Key_Protect_Server.cert"
       
       # Extract the end date of the certificate
-      END_DATE=$(openssl x509 -enddate -noout -in "${var.key_protect_path}/KeyProtect_Server.cert" | awk -F'=' '{print $2}')
+      END_DATE=$(openssl x509 -enddate -noout -in "${var.key_protect_path}/Key_Protect_Server.cert" | awk -F'=' '{print $2}')
       
       # Get the current date in GMT
       CURRENT_DATE=$(date -u +"%b %d %T %Y %Z")
