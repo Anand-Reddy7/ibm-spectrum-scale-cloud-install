@@ -40,7 +40,7 @@ locals {
 }
 
 resource "local_sensitive_file" "write_meta_private_key" {
-  count           = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && var.scale_encryption_type) == "gklm" ? 1 : 0
+  count           = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && var.scale_encryption_type == "gklm") ? 1 : 0
   content         = var.meta_private_key
   filename        = local.gklm_private_key
   file_permission = "0600"
@@ -104,7 +104,7 @@ resource "local_sensitive_file" "write_meta_kp_private_key" {
 }
 
 resource "null_resource" "perform_kp_encryption_prepare" {
-  count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.create_scale_cluster) == true && var.scale_encryption_type) == "key_protect" ? 1 : 0
+  count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.create_scale_cluster) == true && var.scale_encryption_type == "key_protect") ? 1 : 0
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command     = "/usr/local/bin/ansible-playbook -f 32 ${local.encryption_kp_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key} -e scale_encryption_admin_password=${var.scale_encryption_admin_password}  -e kp_resource_prefix=${var.kp_resource_prefix} -e region=${var.vpc_region}"
