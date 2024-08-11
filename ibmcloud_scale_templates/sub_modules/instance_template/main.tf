@@ -1060,7 +1060,7 @@ module "invoke_storage_network_playbook" {
 
 module "encryption_configuration" {
   source                                  = "../../../resources/common/encryption_configuration"
-  turn_on                                 = var.scale_encryption_enabled == true && var.scale_encryption_type == "gklm" ? true : false
+  turn_on                                 = var.scale_encryption_enabled == true ? true : false
   clone_path                              = var.scale_ansible_repo_clone_path
   clone_complete                          = module.prepare_ansible_configuration.clone_complete
   create_scale_cluster                    = var.create_scale_cluster
@@ -1068,9 +1068,12 @@ module "encryption_configuration" {
   scale_encryption_admin_default_password = var.scale_encryption_admin_default_password
   scale_encryption_admin_password         = var.scale_encryption_admin_password
   scale_encryption_admin_username         = var.scale_encryption_admin_username
-  scale_encryption_servers                = jsonencode(one(module.gklm_instance[*].gklm_ip_addresses))
-  scale_encryption_servers_dns            = jsonencode(one(module.gklm_instance[*].gklm_dns_names))
-  meta_private_key                        = module.generate_gklm_instance_keys.private_key_content
+  kp_resource_prefix                      = var.resource_prefix
+  vpc_region                              = var.vpc_region
+  scale_encryption_type                   = var.scale_encryption_type
+  scale_encryption_servers                = var.scale_encryption_type == "gklm" ? jsonencode(one(module.gklm_instance[*].gklm_ip_addresses)) : jsonencode([])
+  scale_encryption_servers_dns            = var.scale_encryption_type == "gklm" ? jsonencode(one(module.gklm_instance[*].gklm_dns_names)) : jsonencode([])
+  meta_private_key                        = var.scale_encryption_type == "gklm" ? module.generate_gklm_instance_keys.private_key_content : module.generate_storage_cluster_keys.private_key_content
   storage_cluster_encryption              = (var.create_separate_namespaces == true && var.total_storage_cluster_instances > 0) ? true : false
   compute_cluster_encryption              = (var.create_separate_namespaces == true && var.total_compute_cluster_instances >= 0) ? true : false
   combined_cluster_encryption             = var.create_separate_namespaces == false ? true : false
