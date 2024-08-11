@@ -103,7 +103,7 @@ resource "local_sensitive_file" "write_meta_kp_private_key" {
   file_permission = "0600"
 }
 
-resource "null_resource" "perform_encryption_prepare" {
+resource "null_resource" "perform_kp_encryption_prepare" {
   count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.create_scale_cluster) == true && tobool(var.scale_encryption_type) == "key_protect") ? 1 : 0
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
