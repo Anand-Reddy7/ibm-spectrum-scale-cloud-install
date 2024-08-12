@@ -99,44 +99,68 @@ resource "null_resource" "perform_encryption_combined" {
 
 ## Key Protect
 
-resource "local_sensitive_file" "write_meta_kp_private_key" {
+resource "local_sensitive_file" "write_meta_keyprotect_private_key" {
   count           = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && var.scale_encryption_type == "key_protect") ? 1 : 0
   content         = var.meta_private_key
   filename        = local.kp_private_key
   file_permission = "0600"
 }
 
-resource "null_resource" "perform_kp_encryption_prepare" {
+resource "null_resource" "perform_keyprotect_encryption_prepare" {
   count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.create_scale_cluster) == true && var.scale_encryption_type == "key_protect") ? 1 : 0
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command     = "/usr/local/bin/ansible-playbook -f 32 -i ${local.storage_inventory_path} ${local.kp_encryption_prepare_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key} -e scale_encryption_admin_password=${var.scale_encryption_admin_password}  -e kp_resource_prefix=${var.kp_resource_prefix} -e vpc_region=${var.vpc_region}"
   }
-  depends_on = [local_sensitive_file.write_meta_kp_private_key]
+  depends_on = [local_sensitive_file.write_meta_keyprotect_private_key]
   triggers = {
     build = timestamp()
   }
 }
 
-resource "null_resource" "perform_kp_encryption_configuration" {
-  count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.create_scale_cluster) == true && var.scale_encryption_type == "key_protect") ? 1 : 0
+resource "null_resource" "perform_keyprotect_encryption_storage" {
+  count = (tobool(var.turn_on) == true && tobool(var.storage_cluster_encryption) == true && tobool(var.storage_cluster_create_complete) == true && tobool(var.remote_mount_create_complete) == true && tobool(var.create_scale_cluster) == true && var.scale_encryption_type == "key_protect") ? 1 : 0
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command     = "/usr/local/bin/ansible-playbook -f 32 -i ${local.storage_inventory_path} ${local.kp_encryption_configure_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key}  -e kp_resource_prefix=${var.kp_resource_prefix}"
+    command     = "/usr/local/bin/ansible-playbook -f 32 -i ${local.storage_inventory_path} ${local.kp_encryption_configure_playbook} -e kp_resource_prefix=${var.kp_resource_prefix}"
   }
-  depends_on = [local_sensitive_file.write_meta_kp_private_key]
+  depends_on = [null_resource.perform_keyprotect_encryption_prepare]
   triggers = {
     build = timestamp()
   }
 }
 
-resource "null_resource" "perform_kp_encryption_apply" {
+resource "null_resource" "perform_keyprotect_encryption_compute" {
+  count = (tobool(var.turn_on) == true && tobool(var.compute_cluster_encryption) == true && tobool(var.compute_cluster_create_complete) == true && tobool(var.remote_mount_create_complete) == true && tobool(var.create_scale_cluster) == true && var.scale_encryption_type == "key_protect") ? 1 : 0
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command     = "/usr/local/bin/ansible-playbook -f 32 -i ${local.compute_inventory_path} ${local.kp_encryption_configure_playbook} -e kp_resource_prefix=${var.kp_resource_prefix}"
+  }
+  depends_on = [null_resource.perform_keyprotect_encryption_prepare, null_resource.perform_keyprotect_encryption_storage]
+  triggers = {
+    build = timestamp()
+  }
+}
+
+resource "null_resource" "perform_keyprotect_encryption_combined" {
+  count = (tobool(var.turn_on) == true && tobool(var.combined_cluster_encryption) == true && tobool(var.combined_cluster_create_complete) == true && tobool(var.create_scale_cluster) == true && var.scale_encryption_type == "key_protect") ? 1 : 0
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command     = "/usr/local/bin/ansible-playbook -f 32 -i ${local.combined_inventory_path} ${local.kp_encryption_configure_playbook} -e kp_resource_prefix=${var.kp_resource_prefix}"
+  }
+  depends_on = [null_resource.perform_keyprotect_encryption_prepare]
+  triggers = {
+    build = timestamp()
+  }
+}
+
+resource "null_resource" "perform_keyprotect_encryption_apply" {
   count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.create_scale_cluster) == true && var.scale_encryption_type == "key_protect") ? 1 : 0
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command     = "/usr/local/bin/ansible-playbook -f 32 -i ${local.storage_inventory_path} ${local.kp_encryption_apply_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key}"
+    command     = "/usr/local/bin/ansible-playbook -f 32 -i ${local.storage_inventory_path} ${local.kp_encryption_apply_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key} -e scale_encryption_admin_password=${var.scale_encryption_admin_password}  -e kp_resource_prefix=${var.kp_resource_prefix} -e vpc_region=${var.vpc_region}"
   }
-  depends_on = [local_sensitive_file.write_meta_kp_private_key]
+  depends_on = [null_resource.perform_keyprotect_encryption_prepare]
   triggers = {
     build = timestamp()
   }
