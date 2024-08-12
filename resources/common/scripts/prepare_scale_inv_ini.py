@@ -316,7 +316,7 @@ def prepare_ansible_playbook_encryption_keyprotect(hosts_config):
     # Write to playbook
     content = """---
 # Encryption setup for the key Protect
-- hosts: {hosts_config}
+- hosts: {hosts_config}[0]
   collections:
      - ibm.spectrum_scale
   any_errors_fatal: true
@@ -344,7 +344,7 @@ def prepare_ansible_playbook_encryption_keyprotect_apply(hosts_config):
     # Write to playbook
     content = """---
 # Enabling encryption on Storage Scale
-- hosts: {hosts_config}
+- hosts: {hosts_config}[0]
   collections:
      - ibm.spectrum_scale
   any_errors_fatal: true
