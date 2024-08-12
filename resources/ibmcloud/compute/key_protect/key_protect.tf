@@ -33,7 +33,7 @@ resource "null_resource" "openssl_commands" {
 
 data "local_file" "kpclient_cert" {
   depends_on = [null_resource.openssl_commands]
-  filename   = "${var.key_protect_path}/KPClient.cert"
+  filename   = "${var.key_protect_path}/${var.resource_prefix}.cert"
 }
 
 resource "ibm_resource_instance" "kms_instance" {
