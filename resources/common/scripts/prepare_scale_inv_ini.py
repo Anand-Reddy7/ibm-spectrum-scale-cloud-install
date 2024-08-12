@@ -324,7 +324,7 @@ def prepare_ansible_playbook_encryption_keyprotect(hosts_config):
   roles:
      - kp_encryption_prepare
 """
-    return content.format()
+    return content.format(hosts_config=hosts_config)
 
 def prepare_ansible_playbook_encryption_keyprotect_configure(hosts_config):
     # Write to playbook
