@@ -312,17 +312,17 @@ def prepare_ansible_playbook_encryption_cluster(hosts_config):
 """
     return content.format(hosts_config=hosts_config)
 
-def prepare_ansible_playbook_encryption_keyprotect_prepare():
+def prepare_ansible_playbook_encryption_keyprotect(hosts_config):
     # Write to playbook
     content = """---
 # Encryption setup for the key Protect
-- hosts: localhost
+- hosts: {hosts_config}
   collections:
      - ibm.spectrum_scale
   any_errors_fatal: true
 
   roles:
-     - encryption_kp_prepare
+     - kp_encryption_prepare
 """
     return content.format()
 
@@ -336,7 +336,21 @@ def prepare_ansible_playbook_encryption_keyprotect_configure(hosts_config):
   any_errors_fatal: true
 
   roles:
-     - encryption_kp_configure
+     - kp_encryption_configure
+"""
+    return content.format(hosts_config=hosts_config)
+
+def prepare_ansible_playbook_encryption_keyprotect_apply(hosts_config):
+    # Write to playbook
+    content = """---
+# Enabling encryption on Storage Scale
+- hosts: {hosts_config}
+  collections:
+     - ibm.spectrum_scale
+  any_errors_fatal: true
+
+  roles:
+     - kp_encryption_apply
 """
     return content.format(hosts_config=hosts_config)
 
@@ -1052,12 +1066,16 @@ if __name__ == "__main__":
 
     # Step-4.1: Create Key Protect Encryption playbook
     if ARGUMENTS.scale_encryption_enabled == "true" and ARGUMENTS.scale_encryption_type == "key_protect":
-        encryption_playbook_content = prepare_ansible_playbook_encryption_keyprotect_prepare()
+        encryption_playbook_content = prepare_ansible_playbook_encryption_keyprotect("scale_nodes")
         write_to_file("%s/%s/encryption_keyprotect_prepare_playbook.yaml" % (ARGUMENTS.install_infra_path,
                                                                "ibm-spectrum-scale-install-infra"), encryption_playbook_content)
         encryption_playbook_content = prepare_ansible_playbook_encryption_keyprotect_configure(
             "scale_nodes")
         write_to_file("%s/%s/encryption_keyprotect_configure_playbook.yaml" % (ARGUMENTS.install_infra_path,
+                                                                  "ibm-spectrum-scale-install-infra"), encryption_playbook_content)
+        encryption_playbook_content = prepare_ansible_playbook_encryption_keyprotect_apply(
+            "scale_nodes")
+        write_to_file("%s/%s/encryption_keyprotect_apply_playbook.yaml" % (ARGUMENTS.install_infra_path,
                                                                   "ibm-spectrum-scale-install-infra"), encryption_playbook_content)
 
     if ARGUMENTS.verbose:
