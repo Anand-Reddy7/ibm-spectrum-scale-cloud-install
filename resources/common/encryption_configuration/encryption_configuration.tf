@@ -110,7 +110,7 @@ resource "null_resource" "perform_kp_encryption_prepare" {
   count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.create_scale_cluster) == true && var.scale_encryption_type == "key_protect") ? 1 : 0
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command     = "/usr/local/bin/ansible-playbook -f 32 ${local.kp_encryption_prepare_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key} -e scale_encryption_admin_password=${var.scale_encryption_admin_password}  -e kp_resource_prefix=${var.kp_resource_prefix} -e vpc_region=${var.vpc_region}"
+    command     = "/usr/local/bin/ansible-playbook -f 32 -i ${local.storage_inventory_path} ${local.kp_encryption_prepare_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key} -e scale_encryption_admin_password=${var.scale_encryption_admin_password}  -e kp_resource_prefix=${var.kp_resource_prefix} -e vpc_region=${var.vpc_region}"
   }
   depends_on = [local_sensitive_file.write_meta_kp_private_key]
   triggers = {
@@ -122,7 +122,7 @@ resource "null_resource" "perform_kp_encryption_configuration" {
   count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.create_scale_cluster) == true && var.scale_encryption_type == "key_protect") ? 1 : 0
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command     = "/usr/local/bin/ansible-playbook -f 32 ${local.kp_encryption_configure_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key}  -e kp_resource_prefix=${var.kp_resource_prefix}"
+    command     = "/usr/local/bin/ansible-playbook -f 32 -i ${local.storage_inventory_path} ${local.kp_encryption_configure_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key}  -e kp_resource_prefix=${var.kp_resource_prefix}"
   }
   depends_on = [local_sensitive_file.write_meta_kp_private_key]
   triggers = {
@@ -134,7 +134,7 @@ resource "null_resource" "perform_kp_encryption_apply" {
   count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.create_scale_cluster) == true && var.scale_encryption_type == "key_protect") ? 1 : 0
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command     = "/usr/local/bin/ansible-playbook -f 32 ${local.kp_encryption_apply_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key}"
+    command     = "/usr/local/bin/ansible-playbook -f 32 -i ${local.storage_inventory_path} ${local.kp_encryption_apply_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key}"
   }
   depends_on = [local_sensitive_file.write_meta_kp_private_key]
   triggers = {
