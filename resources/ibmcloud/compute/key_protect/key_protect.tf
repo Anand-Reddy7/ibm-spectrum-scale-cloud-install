@@ -24,9 +24,9 @@ resource "null_resource" "openssl_commands" {
       awk '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/' "${var.key_protect_path}/Key_Protect_Server.cert" > "${var.key_protect_path}/Key_Protect_Server_CA.cert"
       awk '/-----BEGIN CERTIFICATE-----/{x="${var.key_protect_path}/Key_Protect_Server.chain"i".cert"; i++} {print > x}' "${var.key_protect_path}/Key_Protect_Server_CA.cert"
       mv "${var.key_protect_path}/Key_Protect_Server.chain.cert" "${var.key_protect_path}/Key_Protect_Server.chain0.cert"
-      openssl genpkey -algorithm RSA -out "${var.key_protect_path}/${resource_prefix}.key"
-      openssl req -new -key "${var.key_protect_path}/${resource_prefix}.key" -out "${var.key_protect_path}/${resource_prefix}.csr" -subj "/C=US/ST=New York/L=Armonk/O=International Business Machines Corporation/CN=strgscale.com"
-      openssl x509 -req -days 365 -in "${var.key_protect_path}/${resource_prefix}.csr" -signkey "${var.key_protect_path}/${resource_prefix}.key" -out "${var.key_protect_path}/${resource_prefix}.cert"
+      openssl genpkey -algorithm RSA -out "${var.key_protect_path}/${var.resource_prefix}.key"
+      openssl req -new -key "${var.key_protect_path}/${var.resource_prefix}.key" -out "${var.key_protect_path}/${var.resource_prefix}.csr" -subj "/C=US/ST=New York/L=Armonk/O=International Business Machines Corporation/CN=strgscale.com"
+      openssl x509 -req -days 365 -in "${var.key_protect_path}/${var.resource_prefix}.csr" -signkey "${var.key_protect_path}/${var.resource_prefix}.key" -out "${var.key_protect_path}/${var.resource_prefix}.cert"
     EOT
   }
 }
