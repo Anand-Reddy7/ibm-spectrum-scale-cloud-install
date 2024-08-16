@@ -23,6 +23,7 @@ variable "remote_mount_create_complete" {}
 variable "compute_cluster_encryption" {}
 variable "storage_cluster_encryption" {}
 variable "combined_cluster_encryption" {}
+variable "filesystem_mountpoint" {}
 
 locals {
   gklm_private_key                       = format("%s/gklm_key/id_rsa", var.clone_path)
@@ -158,7 +159,7 @@ resource "null_resource" "perform_keyprotect_encryption_apply" {
   count = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && tobool(var.create_scale_cluster) == true && var.scale_encryption_type == "key_protect") ? 1 : 0
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command     = "sleep 60; /usr/local/bin/ansible-playbook -f 32 -i ${local.storage_inventory_path} ${local.kp_encryption_apply_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key} -e scale_encryption_admin_password=${var.scale_encryption_admin_password}  -e kp_resource_prefix=${var.kp_resource_prefix} -e vpc_region=${var.vpc_region}"
+    command     = "sleep 60; /usr/local/bin/ansible-playbook -f 32 -i ${local.storage_inventory_path} ${local.kp_encryption_apply_playbook} -e ansible_ssh_private_key_file=${local.kp_private_key} -e scale_encryption_admin_password=${var.scale_encryption_admin_password}  -e kp_resource_prefix=${var.kp_resource_prefix} -e vpc_region=${var.vpc_region} -e filesystem_mountpoint=${var.filesystem_mountpoint}"
   }
   depends_on = [null_resource.perform_keyprotect_encryption_prepare, null_resource.perform_keyprotect_encryption_storage]
   triggers = {

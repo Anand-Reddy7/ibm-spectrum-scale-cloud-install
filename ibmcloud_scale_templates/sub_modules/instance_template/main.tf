@@ -613,15 +613,14 @@ module "gklm_instance" {
 }
 
 module "key_protect_instance" {
-  count                = var.scale_encryption_enabled == true && var.scale_encryption_type == "key_protect" ? 1 : 0
-  source               = "../../../resources/ibmcloud/compute/key_protect"
-  resource_prefix      = var.resource_prefix
-  vpc_region           = var.vpc_region
-  resource_group_id    = var.resource_group_id
-  key_protect_path     = format("%s/key_protect", var.scale_ansible_repo_clone_path)
-  resource_tags        = var.scale_cluster_resource_tags
+  count                          = var.scale_encryption_enabled == true && var.scale_encryption_type == "key_protect" ? 1 : 0
+  source                         = "../../../resources/ibmcloud/compute/key_protect"
+  resource_prefix                = var.resource_prefix
+  vpc_region                     = var.vpc_region
+  resource_group_id              = var.resource_group_id
+  key_protect_path               = format("%s/key_protect", var.scale_ansible_repo_clone_path)
+  resource_tags                  = var.scale_cluster_resource_tags
   vpc_storage_cluster_dns_domain = var.vpc_storage_cluster_dns_domain
-  depends_on           = []
 }
 
 module "activity_tracker" {
@@ -1082,6 +1081,7 @@ module "encryption_configuration" {
   storage_cluster_create_complete         = module.storage_cluster_configuration.storage_cluster_create_complete
   combined_cluster_create_complete        = module.combined_cluster_configuration.combined_cluster_create_complete
   remote_mount_create_complete            = module.remote_mount_configuration.remote_mount_create_complete
+  filesystem_mountpoint                   = element(split("/", var.storage_cluster_filesystem_mountpoint), length(split("/", var.storage_cluster_filesystem_mountpoint)) - 1)
   depends_on                              = [module.gklm_instance, module.compute_cluster_configuration, module.storage_cluster_configuration, module.combined_cluster_configuration, module.remote_mount_configuration]
 }
 
