@@ -15,6 +15,7 @@ variable "vpc_region" {}
 variable "resource_group_id" {}
 variable "key_protect_path" {}
 variable "resource_tags" {}
+variable "vpc_storage_cluster_dns_domain" {}
 
 resource "null_resource" "openssl_commands" {
   provisioner "local-exec" {
@@ -41,7 +42,7 @@ resource "null_resource" "openssl_commands" {
 
       # Create a Self Signed Certificates
       [ ! -f "${var.key_protect_path}/${var.resource_prefix}.key" ] && openssl genpkey -algorithm RSA -out "${var.key_protect_path}/${var.resource_prefix}.key"
-      [ ! -f "${var.key_protect_path}/${var.resource_prefix}.csr" ] && openssl req -new -key "${var.key_protect_path}/${var.resource_prefix}.key" -out "${var.key_protect_path}/${var.resource_prefix}.csr" -subj "/C=US/ST=New York/L=Armonk/O=International Business Machines Corporation/CN=strgscale.com"
+      [ ! -f "${var.key_protect_path}/${var.resource_prefix}.csr" ] && openssl req -new -key "${var.key_protect_path}/${var.resource_prefix}.key" -out "${var.key_protect_path}/${var.resource_prefix}.csr" -subj "/CN=${var.vpc_storage_cluster_dns_domain}"
       [ ! -f "${var.key_protect_path}/${var.resource_prefix}.cert" ] && openssl x509 -req -days $DIFF_DAYS -in "${var.key_protect_path}/${var.resource_prefix}.csr" -signkey "${var.key_protect_path}/${var.resource_prefix}.key" -out "${var.key_protect_path}/${var.resource_prefix}.cert"
     EOT
   }
