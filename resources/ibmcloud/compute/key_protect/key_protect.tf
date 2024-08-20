@@ -54,7 +54,7 @@ data "local_file" "kpclient_cert" {
 }
 
 resource "ibm_resource_instance" "kms_instance" {
-  name              = format("%s-keyprotect", var.resource_prefix)
+  name              = format("%s-kp", var.resource_prefix)
   service           = "kms"
   plan              = "tiered-pricing"
   location          = var.vpc_region
@@ -75,13 +75,13 @@ resource "ibm_kms_kmip_adapter" "myadapter" {
     "crk_id" = ibm_kms_key.key.key_id
   }
   description = "Key Protect adapter"
-  name        = format("%s-keyprotect-adapter", var.resource_prefix)
+  name        = format("%s-kp-adapter", var.resource_prefix)
 }
 
 resource "ibm_kms_kmip_client_cert" "mycert" {
   instance_id  = ibm_resource_instance.kms_instance.guid
   adapter_id   = ibm_kms_kmip_adapter.myadapter.adapter_id
   certificate  = data.local_file.kpclient_cert.content
-  name         = format("%s-keyprotect-adapter-cert", var.resource_prefix)
+  name         = format("%s-kp-cert", var.resource_prefix)
   depends_on = [data.local_file.kpclient_cert]
 }
