@@ -503,7 +503,7 @@ variable "ldap_admin_password" {
   type        = string
   sensitive   = true
   default     = ""
-  description = "The LDAP administrative password should be 8 to 20 characters long, with a mix of at least three alphabetic characters, including one uppercase and one lowercase letter. It must also include two numerical digits and at least one special character from (~@_+:) are required. It is important to avoid including the username in the password for enhanced security.[This value is ignored for an existing LDAP server]."
+  description = "The LDAP administrative password should be 8 to 20 characters long, with a mix of at least three alphabetic characters, including one uppercase and one lowercase letter. It must also include two numerical digits and at least one special character from (~@_+:) are required. It is important to avoid including the username in the password for enhanced security."
 }
 
 variable "ldap_user_name" {
@@ -535,4 +535,30 @@ variable "ldap_vsi_osimage_name" {
   type        = string
   default     = "ibm-ubuntu-22-04-3-minimal-amd64-1"
   description = "Image name to be used for provisioning the LDAP instances. Note: Debian based OS are only supported for the LDAP feature."
+}
+
+variable "total_afm_cluster_instances" {
+  type        = number
+  default     = 0
+  description = "Total number of instance count that you need to provision for afm nodes and enable AFM."
+}
+
+variable "afm_vsi_profile" {
+  type        = string
+  default     = "bx2-32x128"
+  description = "The virtual instance or bare metal server instance profile type name to be used to create the AFM gateway nodes. For more information, see [Instance Profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-profiles&interface=ui) and [bare metal server profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-bare-metal-servers-profile&interface=ui)."
+}
+
+variable "afm_cos_config" {
+  type = list(object({
+    cos_instance         = string,
+    bucket_name          = string,
+    bucket_region        = string,
+    cos_service_cred_key = string,
+    afm_fileset          = string,
+    mode                 = string,
+    bucket_storage_class = string,
+    bucket_type          = string
+  }))
+  description = "Please provide details for the Cloud Object Storage (COS) instance, including information about the COS bucket, service credentials (HMAC key), AFM fileset, mode (such as Read-only (RO), Single writer (SW), Local updates (LU), and Independent writer (IW)), storage class (standard, vault, cold, or smart), and bucket type (single_site_location, region_location, cross_region_location). Note : The 'afm_cos_config' can contain up to 5 entries. For further details on COS bucket locations, refer to the relevant documentation https://cloud.ibm.com/docs/cloud-object-storage/basics?topic=cloud-object-storage-endpoints."
 }
