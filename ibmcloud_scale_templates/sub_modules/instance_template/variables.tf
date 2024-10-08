@@ -320,6 +320,12 @@ variable "scale_encryption_enabled" {
   description = "To enable the encryption for the filesystem. Select true or false"
 }
 
+variable "scale_encryption_type" {
+  type        = string
+  default     = ""
+  description = "To enable filesystem encryption, specify either 'key_protect' or 'gklm'. If neither is specified, the default value will be 'null' and encryption is disabled"
+}
+
 variable "gklm_vsi_osimage_id" {
   type        = string
   default     = null
@@ -502,7 +508,7 @@ variable "ldap_server" {
 variable "ldap_admin_password" {
   type        = string
   sensitive   = true
-  default     = ""
+  default     = "null"
   description = "The LDAP administrative password should be 8 to 20 characters long, with a mix of at least three alphabetic characters, including one uppercase and one lowercase letter. It must also include two numerical digits and at least one special character from (~@_+:) are required. It is important to avoid including the username in the password for enhanced security."
 }
 
