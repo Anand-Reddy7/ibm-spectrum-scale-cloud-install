@@ -134,31 +134,31 @@ EOF_LDIF
 
 ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ssl/certinfo.ldif
 sed -i 's|SLAPD_SERVICES="ldap:/// ldapi:///"|SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"|g' /etc/default/slapd
-echo "Configured OpenLDAP to use TLS" >> >> $logfile
+echo "Configured OpenLDAP to use TLS" >> $logfile
 
 # Update LDAP client configuration
-cat <<-EOF_LDAP_CONF > /etc/ldap/ldap.conf
-BASE   dc=$basedomain,dc=$rootdomain
-URI    ldap://localhost
+cat <<-EOF_LDAP_CONF >> /etc/ldap/ldap.conf
 TLS_CACERT /etc/ssl/certs/ldap_cacert.pem
 TLS_REQCERT allow
 EOF_LDAP_CONF
 
+# Restart the OpenLDAP service
 systemctl restart slapd.service
-echo "SSL creation completed" >> "$logfile"
+echo "SSL creation completed" >> $logfile
 
 # Configure SSH settings
 sed -i -e "s/^/no-port-forwarding,no-agent-forwarding,no-X11-forwarding,command=\"echo 'Please login as the user \\\\\"$USER\\\\\" rather than the user \\\\\"root\\\\\".';echo;sleep 10; exit 142\" /" /root/.ssh/authorized_keys
 sed -i "s/#MaxSessions 10/MaxSessions 32/" /etc/ssh/sshd_config
 sed -i "s/#MaxStartups 10:30:100/MaxStartups 30:30:100/" /etc/ssh/sshd_config
 systemctl restart sshd.service
-echo "Restarted SSHD service" >> "$logfile"
+echo "Restarted SSHD service" >> $logfile
 
 # Set up passwordless SSH authentication
-echo "${var.vsi_meta_private_key}" > /home/ubuntu/.ssh/id_rsa
-chmod 600 /home/ubuntu/.ssh/id_rsa
-echo "${var.vsi_meta_public_key}" >> /home/ubuntu/.ssh/authorized_keys
-echo "StrictHostKeyChecking no" >> /home/ubuntu/.ssh/config
+echo "${var.vsi_meta_private_key}" > ~/.ssh/id_rsa
+chmod 600 ~/.ssh/id_rsa
+echo "${var.vsi_meta_public_key}" >> ~/.ssh/authorized_keys
+echo "StrictHostKeyChecking no" >> ~/.ssh/config
+echo "Keys added to the server for passwordless authentication !!" >> $logfile
 EOF
 }
 
