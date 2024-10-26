@@ -1007,7 +1007,6 @@ module "compute_cluster_configuration" {
   enable_ldap                     = var.enable_ldap
   ldap_basedns                    = var.ldap_basedns
   ldap_server                     = local.ldap_server
-  ldap_server_cert                = var.ldap_server_cert
   ldap_admin_password             = var.ldap_admin_password
   depends_on                      = [module.ldap_configuration]
 }
@@ -1102,7 +1101,6 @@ module "combined_cluster_configuration" {
   ldap_basedns                    = var.ldap_basedns
   ldap_server                     = local.ldap_server
   ldap_admin_password             = var.ldap_admin_password
-  ldap_server_cert                = var.ldap_server_cert
   depends_on                      = [module.ldap_configuration]
 }
 
@@ -1124,7 +1122,6 @@ module "client_configuration" {
   ldap_basedns                    = var.ldap_basedns
   ldap_server                     = local.ldap_server
   ldap_admin_password             = var.ldap_admin_password
-  ldap_server_cert                = var.ldap_server_cert
   depends_on                      = [module.compute_cluster_configuration, module.storage_cluster_configuration, module.combined_cluster_configuration, module.ldap_configuration]
 }
 
