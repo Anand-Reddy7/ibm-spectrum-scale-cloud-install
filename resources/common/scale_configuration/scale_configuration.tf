@@ -28,7 +28,6 @@ variable "enable_ldap" {}
 variable "ldap_basedns" {}
 variable "ldap_server" {}
 variable "ldap_admin_password" {}
-variable "ldap_server_cert" {}
 
 locals {
   scripts_path             = replace(path.module, "scale_configuration", "scripts")
@@ -39,7 +38,6 @@ locals {
   combined_inventory_path  = format("%s/%s/combined_inventory.ini", var.clone_path, "ibm-spectrum-scale-install-infra")
   combined_playbook_path   = format("%s/%s/combined_cloud_playbook.yaml", var.clone_path, "ibm-spectrum-scale-install-infra")
   scale_encryption_servers = jsonencode(var.scale_encryption_servers)
-  ldap_server_cert_path    = format("%s/ldap_key/ldap_cacert.pem", var.clone_path) #tfsec:ignore:GEN002
 }
 
 resource "local_file" "create_storage_tuning_parameters" {
@@ -67,13 +65,6 @@ resource "local_sensitive_file" "write_meta_private_key" {
   content         = var.meta_private_key
   filename        = local.combined_private_key
   file_permission = "0600"
-}
-
-resource "local_sensitive_file" "write_existing_ldap_cert" {
-  count           = (tobool(var.turn_on) == true && tobool(var.clone_complete) == true && var.ldap_server_cert != "null") ? 1 : 0
-  content         = var.ldap_server_cert
-  filename        = local.ldap_server_cert_path
-  file_permission = "0644"
 }
 
 resource "null_resource" "prepare_ansible_inventory_using_jumphost_connection" {
