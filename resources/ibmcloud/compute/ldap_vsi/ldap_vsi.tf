@@ -26,7 +26,7 @@ variable "vsi_meta_public_key" {}
 variable "ldap_basedns" {}
 variable "ldap_admin_password" {}
 
-# Create startup script template for configuring the instance
+# Startup script template for configuring the LDAP instance
 data "template_file" "metadata_startup_script" {
   template = <<-EOF
 #!/usr/bin/env bash
@@ -185,7 +185,6 @@ resource "ibm_is_instance" "itself" {
   }
 }
 
-# Outputs for VSI instance information
 output "vsi_id" {
   value = ibm_is_instance.itself.id
 }

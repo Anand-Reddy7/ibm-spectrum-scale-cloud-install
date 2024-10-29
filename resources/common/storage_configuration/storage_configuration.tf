@@ -72,7 +72,7 @@ locals {
   storage_playbook_path           = format("%s/%s/storage_cloud_playbook.yaml", var.clone_path, "ibm-spectrum-scale-install-infra")
   scale_encryption_servers        = var.scale_encryption_enabled && var.scale_encryption_type == "gklm" ? jsonencode(var.scale_encryption_servers) : jsonencode("None")
   scale_encryption_admin_password = var.scale_encryption_enabled ? var.scale_encryption_admin_password : "None"
-  ldap_server_cert_path           = format("%s/ldap_key/ldap_cacert.pem", var.clone_path) #tfsec:ignore:GEN002
+  ldap_server_cert_path           = format("%s/ldap_key/ldap_cacert.pem", var.clone_path)
 }
 
 resource "local_file" "create_storage_tuning_parameters" {
