@@ -10,7 +10,6 @@ terraform {
   }
 }
 
-# Variable definitions
 variable "vsi_name_prefix" {}
 variable "vpc_id" {}
 variable "zones" {}
@@ -26,7 +25,6 @@ variable "vsi_meta_public_key" {}
 variable "ldap_basedns" {}
 variable "ldap_admin_password" {}
 
-# Startup script template for configuring the LDAP instance
 data "template_file" "metadata_startup_script" {
   template = <<-EOF
 #!/usr/bin/env bash
