@@ -508,7 +508,7 @@ variable "ldap_server" {
 variable "ldap_server_cert" {
   type        = string
   sensitive   = true
-  default     = "null"
+  default     = null
   description = "Provide the existing LDAP server certificate. This value is required if the 'ldap_server' variable is not set to null. If the certificate is not provided or is invalid, the LDAP configuration may fail."
 }
 
