@@ -505,6 +505,13 @@ variable "ldap_server" {
   description = "Provide the IP address for the existing LDAP server. If no address is given, a new LDAP server will be created."
 }
 
+variable "ldap_server_cert" {
+  type        = string
+  sensitive   = true
+  default     = "null"
+  description = "Provide the existing LDAP server certificate. This value is required if the 'ldap_server' variable is not set to null. If the certificate is not provided or is invalid, the LDAP configuration may fail."
+}
+
 variable "ldap_admin_password" {
   type        = string
   sensitive   = true
