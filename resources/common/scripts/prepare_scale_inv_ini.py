@@ -209,30 +209,30 @@ def prepare_ansible_playbook(hosts_config, cluster_config, cluster_key_file):
   pre_tasks:
      - include_vars: group_vars/{cluster_config}
   roles:
-#      - core_prepare
-#      - {{ role: core_install, when: "scale_packages_installed is false" }}
-#      - core_configure
-# #    - gui_prepare
-#      - {{ role: gui_install, when: "scale_packages_installed is false" }}
-#      - gui_configure
-#      - gui_verify
-#      - perfmon_prepare
-#      - {{ role: perfmon_install, when: "scale_packages_installed is false" }}
-#      - perfmon_configure
-#      - perfmon_verify
-#      - {{ role: mrot_config, when: enable_mrot }}
-#      - {{ role: nfs_prepare, when: enable_ces }}
-#      - {{ role: nfs_install, when: "enable_ces and scale_packages_installed is false" }}
-#      - {{ role: nfs_ic_failover, when: enable_ces }}
-#      - {{ role: nfs_configure, when: enable_ces }}
-#      - {{ role: nfs_route_configure, when: enable_ces }}
-#      - {{ role: nfs_verify, when: enable_ces }}
+     - core_prepare
+     - {{ role: core_install, when: "scale_packages_installed is false" }}
+     - core_configure
+#    - gui_prepare
+     - {{ role: gui_install, when: "scale_packages_installed is false" }}
+     - gui_configure
+     - gui_verify
+     - perfmon_prepare
+     - {{ role: perfmon_install, when: "scale_packages_installed is false" }}
+     - perfmon_configure
+     - perfmon_verify
+     - {{ role: mrot_config, when: enable_mrot }}
+     - {{ role: nfs_prepare, when: enable_ces }}
+     - {{ role: nfs_install, when: "enable_ces and scale_packages_installed is false" }}
+     - {{ role: nfs_ic_failover, when: enable_ces }}
+     - {{ role: nfs_configure, when: enable_ces }}
+     - {{ role: nfs_route_configure, when: enable_ces }}
+     - {{ role: nfs_verify, when: enable_ces }}
      - {{ role: auth_prepare, when: enable_ces }}
      - {{ role: auth_configure, when: enable_ldap or enable_ces }}
      - {{ role: nfs_file_share, when: enable_ces }}
-    #  - {{ role: afm_cos_prepare, when: enable_afm }}
-    #  - {{ role: afm_cos_install, when: "enable_afm and scale_packages_installed is false" }}
-    #  - {{ role: afm_cos_configure, when: enable_afm }}
+     - {{ role: afm_cos_prepare, when: enable_afm }}
+     - {{ role: afm_cos_install, when: "enable_afm and scale_packages_installed is false" }}
+     - {{ role: afm_cos_configure, when: enable_afm }}
 """.format(hosts_config=hosts_config, cluster_config=cluster_config,
            cluster_key_file=cluster_key_file)
     return content
