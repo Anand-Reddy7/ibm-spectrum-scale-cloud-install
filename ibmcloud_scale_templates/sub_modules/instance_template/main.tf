@@ -719,12 +719,17 @@ module "gklm_instance" {
   depends_on           = [module.gklm_instance_ingress_security_rule, module.gklm_instance_ingress_security_rule_wt_bastion, module.gklm_instance_ingress_security_rule_wo_bastion, module.gklm_instance_egress_security_rule, var.vpc_custom_resolver_id]
 }
 
+data "ibm_resource_instance" "key_protect_instance_location" {
+  count = var.key_protect_instance_id != null ? 1 : 0
+  resource_id = var.key_protect_instance_id # data.ibm_resource_instance.key_protect_instance_location.location
+}
+
 module "key_protect_instance" {
   count                          = var.scale_encryption_enabled == true && var.scale_encryption_type == "key_protect" ? 1 : 0
   source                         = "../../../resources/ibmcloud/compute/key_protect"
   key_protect_instance_id        = var.key_protect_instance_id
   resource_prefix                = var.resource_prefix
-  vpc_region                     = var.vpc_region
+  vpc_region                     = var.key_protect_instance_id != null ? data.ibm_resource_instance.key_protect_instance_location.location : var.vpc_region
   resource_group_id              = var.resource_group_id
   key_protect_path               = format("%s/key_protect", var.scale_ansible_repo_clone_path)
   resource_tags                  = var.scale_cluster_resource_tags
