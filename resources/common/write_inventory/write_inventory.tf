@@ -98,7 +98,6 @@ resource "local_sensitive_file" "itself" {
     "afm_config_details": ${var.afm_config_details},
     "afm_cluster_instance_names": ${var.afm_cluster_instance_names},
     "filesystem_mountpoint": ${var.filesystem_mountpoint}
-
 }
 EOT
   filename = var.inventory_path
