@@ -8,6 +8,7 @@ variable "inventory_path" {}
 variable "cloud_platform" {}
 variable "resource_prefix" {}
 variable "vpc_region" {}
+variable "existing_key_protect_region" {}
 variable "vpc_availability_zones" {}
 variable "scale_version" {}
 variable "filesystem_block_size" {}
