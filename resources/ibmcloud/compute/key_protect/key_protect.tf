@@ -10,7 +10,7 @@ terraform {
   }
 }
 
-variable "key_protect_instance_id" {}
+variable "existing_key_protect_instance_id" {}
 variable "resource_prefix" {}
 variable "vpc_region" {}
 variable "resource_group_id" {}
@@ -49,7 +49,7 @@ data "local_file" "kpclient_cert" {
 }
 
 resource "ibm_resource_instance" "kms_instance" {
-  count             = var.key_protect_instance_id == null ? 1 : 0
+  count             = var.existing_key_protect_instance_id == null ? 1 : 0
   name              = format("%s-kp", var.resource_prefix)
   service           = "kms"
   plan              = "tiered-pricing"
@@ -59,23 +59,24 @@ resource "ibm_resource_instance" "kms_instance" {
 }
 
 resource "ibm_kms_key" "key" {
-  instance_id  = var.key_protect_instance_id == null ? ibm_resource_instance.kms_instance[0].guid : var.key_protect_instance_id
+  count        = var.existing_key_protect_instance_id == null ? 1 : 0
+  instance_id  = ibm_resource_instance.kms_instance[0].guid
   key_name     = "key"
   standard_key = false
 }
 
 resource "ibm_kms_kmip_adapter" "myadapter" {
-  instance_id = var.key_protect_instance_id == null ? ibm_resource_instance.kms_instance[0].guid : var.key_protect_instance_id
+  instance_id = var.existing_key_protect_instance_id == null ? ibm_resource_instance.kms_instance[0].guid : var.existing_key_protect_instance_id
   profile     = "native_1.0"
   profile_data = {
-    "crk_id" = ibm_kms_key.key.key_id
+    "crk_id" = ibm_kms_key.key[0].key_id
   }
   description = "Key Protect adapter"
   name        = format("%s-kp-adapter", var.resource_prefix)
 }
 
 resource "ibm_kms_kmip_client_cert" "mycert" {
-  instance_id = var.key_protect_instance_id == null ? ibm_resource_instance.kms_instance[0].guid : var.key_protect_instance_id
+  instance_id = var.existing_key_protect_instance_id == null ? ibm_resource_instance.kms_instance[0].guid : var.existing_key_protect_instance_id
   adapter_id  = ibm_kms_kmip_adapter.myadapter.adapter_id
   certificate = data.local_file.kpclient_cert.content
   name        = format("%s-kp-cert", var.resource_prefix)

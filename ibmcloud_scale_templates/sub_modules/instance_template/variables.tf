@@ -326,6 +326,18 @@ variable "scale_encryption_type" {
   description = "To enable filesystem encryption, specify either 'key_protect' or 'gklm'. If neither is specified, the default value will be 'null' and encryption is disabled"
 }
 
+variable "existing_key_protect_instance_id" {
+  type        = string
+  default     = null
+  description = "Existing Key Protect Instace ID"
+}
+
+variable "existing_key_protect_key_region" {
+  type        = string
+  default     = null
+  description = "Existing Key Protect located Region"
+}
+
 variable "gklm_vsi_osimage_id" {
   type        = string
   default     = null
@@ -574,12 +586,6 @@ variable "afm_cos_config" {
     bucket_type          = string
   }))
   description = "Please provide details for the Cloud Object Storage (COS) instance, including information about the COS bucket, service credentials (HMAC key), AFM fileset, mode (such as Read-only (RO), Single writer (SW), Local updates (LU), and Independent writer (IW)), storage class (standard, vault, cold, or smart), and bucket type (single_site_location, region_location, cross_region_location). Note : The 'afm_cos_config' can contain up to 5 entries. For further details on COS bucket locations, refer to the relevant documentation https://cloud.ibm.com/docs/cloud-object-storage/basics?topic=cloud-object-storage-endpoints."
-}
-
-variable "key_protect_instance_id" {
-  type        = string
-  default     = null
-  description = "Existing Key Protect ID"
 }
 
 # Existing Security Group Variables
