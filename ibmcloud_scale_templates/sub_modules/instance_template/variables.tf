@@ -332,7 +332,7 @@ variable "existing_key_protect_instance_id" {
   description = "Existing Key Protect Instace ID"
 }
 
-variable "existing_key_protect_key_region" {
+variable "existing_key_protect_region" {
   type        = string
   default     = null
   description = "Existing Key Protect located Region"

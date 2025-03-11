@@ -724,7 +724,7 @@ module "key_protect_instance" {
   source                           = "../../../resources/ibmcloud/compute/key_protect"
   existing_key_protect_instance_id = var.existing_key_protect_instance_id
   resource_prefix                  = var.resource_prefix
-  vpc_region                       = var.existing_key_protect_instance_id == null ? jsonencode(var.vpc_region) : var.existing_key_protect_key_region
+  vpc_region                       = var.existing_key_protect_instance_id == null ? jsonencode(var.vpc_region) : var.existing_key_protect_region
   resource_group_id                = var.resource_group_id
   key_protect_path                 = format("%s/key_protect", var.scale_ansible_repo_clone_path)
   resource_tags                    = var.scale_cluster_resource_tags
@@ -923,7 +923,7 @@ module "write_storage_cluster_inventory" {
   cloud_platform                                   = jsonencode("IBMCloud")
   resource_prefix                                  = jsonencode(format("%s.%s", var.resource_prefix, var.vpc_storage_cluster_dns_domain))
   vpc_region                                       = jsonencode(var.vpc_region)
-  existing_key_protect_region                      = var.existing_key_protect_instance_id == null ? jsonencode(var.vpc_region) : jsonencode(var.existing_key_protect_key_region)
+  key_protect_region                               = var.existing_key_protect_instance_id == null ? jsonencode(var.vpc_region) : jsonencode(var.existing_key_protect_region)
   vpc_availability_zones                           = jsonencode(var.vpc_availability_zones)
   scale_version                                    = jsonencode(local.scale_version)
   filesystem_block_size                            = jsonencode(var.filesystem_block_size)
