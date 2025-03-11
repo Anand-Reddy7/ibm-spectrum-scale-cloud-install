@@ -24,7 +24,7 @@ resource "null_resource" "openssl_commands" {
       # Create a Key_Protect folder if not exists
       mkdir -p "${var.key_protect_path}"
       # Get the Key Protect Server certificate
-      openssl s_client -showcerts -connect "${var.vpc_region}.kms.cloud.ibm.com:5696" < /dev/null > "${var.key_protect_path}/Key_Protect_Server.cert"
+      openssl s_client -showcerts -connect "private.${var.vpc_region}.kms.cloud.ibm.com:5696" < /dev/null > "${var.key_protect_path}/Key_Protect_Server.cert"
       # Extract the end date of the certificate
       [ -f "${var.key_protect_path}/Key_Protect_Server.cert" ] &&  END_DATE=$(openssl x509 -enddate -noout -in "${var.key_protect_path}/Key_Protect_Server.cert" | awk -F'=' '{print $2}')
       # Get the current date in GMT
@@ -69,8 +69,9 @@ resource "ibm_kms_kmip_adapter" "myadapter" {
   instance_id = var.existing_key_protect_instance_id == null ? ibm_resource_instance.kms_instance[0].guid : var.existing_key_protect_instance_id
   profile     = "native_1.0"
   profile_data = {
-    "crk_id" = ibm_kms_key.key[0].key_id
+    "crk_id" = var.existing_key_protect_instance_id == null ? ibm_kms_key.key[0].key_id : var.existing_key_protect_instance_id
   }
+  
   description = "Key Protect adapter"
   name        = format("%s-kp-adapter", var.resource_prefix)
 }
