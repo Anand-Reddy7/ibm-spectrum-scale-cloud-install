@@ -326,16 +326,16 @@ variable "scale_encryption_type" {
   description = "To enable filesystem encryption, specify either 'key_protect' or 'gklm'. If neither is specified, the default value will be 'null' and encryption is disabled"
 }
 
-variable "existing_key_protect_instance_id" {
+variable "kms_instance_name" {
   type        = string
   default     = null
-  description = "Existing Key Protect Instace ID"
+  description = "Existing Key Protect Instace name"
 }
 
-variable "existing_key_protect_region" {
+variable "kms_key_name" {
   type        = string
   default     = null
-  description = "Existing Key Protect located Region"
+  description = "Existing Key Protect root key-name"
 }
 
 variable "gklm_vsi_osimage_id" {

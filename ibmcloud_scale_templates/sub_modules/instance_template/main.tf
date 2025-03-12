@@ -719,12 +719,32 @@ module "gklm_instance" {
   depends_on           = [module.gklm_instance_ingress_security_rule, module.gklm_instance_ingress_security_rule_wt_bastion, module.gklm_instance_ingress_security_rule_wo_bastion, module.gklm_instance_egress_security_rule, var.vpc_custom_resolver_id]
 }
 
+# Key Protect Data Source
+
+data "ibm_resource_instance" "kms_instance" {
+  count = var.kms_instance_name != null && var.kms_key_name != null ? 1 : 0
+  name    = var.kms_instance_name
+  service = "kms"
+}
+
+data "ibm_kms_key" "kms_key" {
+  count = var.kms_instance_name != null && var.kms_key_name != null ? 1 : 0
+  instance_id = data.ibm_resource_instance.kms_instance[0].guid
+  key_name    = var.kms_key_name
+}
+
+data "ibm_kms_keys" "all_keys" {
+  count = var.kms_instance_name != null && var.kms_key_name != null ? 1 : 0
+  instance_id = data.ibm_resource_instance.kms_instance[0].guid
+}
+
 module "key_protect_instance" {
   count                            = var.scale_encryption_enabled == true && var.scale_encryption_type == "key_protect" ? 1 : 0
   source                           = "../../../resources/ibmcloud/compute/key_protect"
-  existing_key_protect_instance_id = var.existing_key_protect_instance_id
+  kms_instance_id                  = var.kms_instance_name != null && var.kms_key_name != null ? data.ibm_kms_key.kms_key[0].id : "null"
+  kms_key_id                       = var.kms_instance_name != null && var.kms_key_name != null ? [for key in data.ibm_kms_keys.all_keys[0].keys : key.id if key.name == var.kms_key_name][0] : "null"
   resource_prefix                  = var.resource_prefix
-  vpc_region                       = var.existing_key_protect_instance_id == null ? jsonencode(var.vpc_region) : var.existing_key_protect_region
+  vpc_region                       = var.kms_instance_name != null && var.kms_key_name != null ? jsonencode(var.vpc_region) : data.ibm_resource_instance.kms_instance[0].location
   resource_group_id                = var.resource_group_id
   key_protect_path                 = format("%s/key_protect", var.scale_ansible_repo_clone_path)
   resource_tags                    = var.scale_cluster_resource_tags
@@ -873,7 +893,7 @@ module "write_compute_cluster_inventory" {
   cloud_platform                                   = jsonencode("IBMCloud")
   resource_prefix                                  = jsonencode(format("%s.%s", var.resource_prefix, var.vpc_compute_cluster_dns_domain))
   vpc_region                                       = jsonencode(var.vpc_region)
-  key_protect_region                               = jsonencode("")
+  kms_instance_location                            = jsonencode("")
   vpc_availability_zones                           = jsonencode(var.vpc_availability_zones)
   scale_version                                    = jsonencode(local.scale_version)
   filesystem_block_size                            = jsonencode("None")
@@ -924,7 +944,7 @@ module "write_storage_cluster_inventory" {
   cloud_platform                                   = jsonencode("IBMCloud")
   resource_prefix                                  = jsonencode(format("%s.%s", var.resource_prefix, var.vpc_storage_cluster_dns_domain))
   vpc_region                                       = jsonencode(var.vpc_region)
-  key_protect_region                               = var.existing_key_protect_instance_id == null ? jsonencode(var.vpc_region) : jsonencode(var.existing_key_protect_region)
+  kms_instance_location                            = var.kms_instance_name != null && var.kms_key_name != null ? data.ibm_resource_instance.kms_instance[0].location : "null"
   vpc_availability_zones                           = jsonencode(var.vpc_availability_zones)
   scale_version                                    = jsonencode(local.scale_version)
   filesystem_block_size                            = jsonencode(var.filesystem_block_size)
@@ -975,7 +995,7 @@ module "write_cluster_inventory" {
   cloud_platform                                   = jsonencode("IBMCloud")
   resource_prefix                                  = jsonencode(var.resource_prefix)
   vpc_region                                       = jsonencode(var.vpc_region)
-  key_protect_region                               = jsonencode("")
+  kms_instance_location                            = jsonencode("")
   vpc_availability_zones                           = jsonencode(var.vpc_availability_zones)
   scale_version                                    = jsonencode(local.scale_version)
   filesystem_block_size                            = jsonencode(var.filesystem_block_size)
@@ -1026,7 +1046,7 @@ module "write_client_cluster_inventory" {
   cloud_platform                                   = jsonencode("")
   resource_prefix                                  = jsonencode("")
   vpc_region                                       = jsonencode("")
-  key_protect_region                               = jsonencode("")
+  kms_instance_location                            = jsonencode("")
   vpc_availability_zones                           = jsonencode([])
   scale_version                                    = jsonencode("")
   filesystem_block_size                            = jsonencode("")
