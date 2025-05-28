@@ -38,7 +38,7 @@ resource "null_resource" "openssl_commands" {
       # Create a Self Signed Certificates
       [ ! -f "${var.key_protect_path}/${var.resource_prefix}.key" ] && openssl genpkey -algorithm RSA -out "${var.key_protect_path}/${var.resource_prefix}.key"
       [ ! -f "${var.key_protect_path}/${var.resource_prefix}.csr" ] && openssl req -new -key "${var.key_protect_path}/${var.resource_prefix}.key" -out "${var.key_protect_path}/${var.resource_prefix}.csr" -subj "/CN=${var.vpc_storage_cluster_dns_domain}"
-      [ ! -f "${var.key_protect_path}/${var.resource_prefix}.cert" ] && openssl x509 -req -days $DIFF_DAYS -in "${var.key_protect_path}/${var.resource_prefix}.csr" -signkey "${var.key_protect_path}/${var.resource_prefix}.key" -out "${var.key_protect_path}/${var.resource_prefix}.cert"
+      [ ! -f "${var.key_protect_path}/${var.resource_prefix}.cert" ] && openssl x509 -req -days 365 -in "${var.key_protect_path}/${var.resource_prefix}.csr" -signkey "${var.key_protect_path}/${var.resource_prefix}.key" -out "${var.key_protect_path}/${var.resource_prefix}.cert"
     EOT
   }
 }
