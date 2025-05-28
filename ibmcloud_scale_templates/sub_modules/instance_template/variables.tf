@@ -276,6 +276,12 @@ variable "storage_bare_metal_server_profile" {
   description = "Specify the virtual server instance profile type name to be used to create the Baremetal Storage nodes. For more information, see [Instance Profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-bare-metal-servers-profile&interface=ui)."
 }
 
+variable "tie_breaker_bare_metal_server_profile" {
+  type        = string
+  default     = "cx2d-metal-96x192"
+  description = "Specify the bare metal server profile type name to be used for creating the bare metal Tie breaker node. If no value is provided, the storage bare metal server profile will be used as the default. For more information, see [bare metal server profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-bare-metal-servers-profile&interface=ui). [Tie Breaker Node](https://www.ibm.com/docs/en/storage-scale/5.2.2?topic=quorum-node-tiebreaker-disks)"
+}
+
 variable "storage_bare_metal_osimage_name" {
   type        = string
   default     = "ibm-redhat-8-3-minimal-amd64-3"
@@ -390,6 +396,14 @@ variable "scale_encryption_admin_password" {
   type        = string
   default     = null
   description = "Password that is used for performing administrative operations for the GKLM.The password must contain at least 8 characters and at most 20 characters. For a strong password, at least three alphabetic characters are required, with at least one uppercase and one lowercase letter.  Two numbers, and at least one special character from this(~@_+:). Make sure that the password doesn't include the username. Visit this [page](https://www.ibm.com/docs/en/gklm/3.0.1?topic=roles-password-policy) to know more about password policy of GKLM. "
+}
+
+# Existing Key Protect instance Details
+
+variable "key_protect_instance_id" {
+  type        = string
+  default     = null
+  description = "An existing Key Protect instance used for filesystem encryption"
 }
 
 # CES Variables
@@ -576,34 +590,34 @@ variable "afm_cos_config" {
   description = "Please provide details for the Cloud Object Storage (COS) instance, including information about the COS bucket, service credentials (HMAC key), AFM fileset, mode (such as Read-only (RO), Single writer (SW), Local updates (LU), and Independent writer (IW)), storage class (standard, vault, cold, or smart), and bucket type (single_site_location, region_location, cross_region_location). Note : The 'afm_cos_config' can contain up to 5 entries. For further details on COS bucket locations, refer to the relevant documentation https://cloud.ibm.com/docs/cloud-object-storage/basics?topic=cloud-object-storage-endpoints."
 }
 
-variable "key_protect_instance_id" {
-  type        = string
-  default     = null
-  description = "Existing Key Protect ID"
-}
-
 # Existing Security Group Variables
+
+variable "enable_sg_validation" {
+  type        = bool
+  default     = true
+  description = "Enable or disable security group validation. Security group validation ensures that the specified security groups are properly assigned"
+}
 
 variable "strg_sg_name" {
   type        = string
   default     = null
-  description = "Existing storage security group name"
+  description = "Provide the security group name to provision the storage nodes. If set to null, the solution will automatically create the necessary security group and rules. If you choose to use an existing security group, ensure it has the appropriate rules configured for the storage nodes to function properly."
 }
 
 variable "comp_sg_name" {
   type        = string
   default     = null
-  description = "Existing compute security group name"
+  description = "Provide the security group name to provision the compute nodes. If set to null, the solution will automatically create the necessary security group and rules. If you choose to use an existing security group, ensure it has the appropriate rules configured for the compute nodes to function properly."
 }
 
 variable "gklm_sg_name" {
   type        = string
   default     = null
-  description = "Existing gklm security group name"
+  description = "Provide the security group name to provision the gklm nodes. If set to null, the solution will automatically create the necessary security group and rules. If you choose to use an existing security group, ensure it has the appropriate rules configured for the gklm nodes to function properly."
 }
 
 variable "ldap_sg_name" {
   type        = string
   default     = null
-  description = "Existing ldap security group name"
+  description = "Provide the security group name to provision the ldap nodes. If set to null, the solution will automatically create the necessary security group and rules. If you choose to use an existing security group, ensure it has the appropriate rules configured for the ldap nodes to function properly."
 }
